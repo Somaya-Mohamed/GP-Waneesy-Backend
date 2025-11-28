@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35521.163 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kidsApp.Domain", "kidsApp.Domain\kidsApp.Domain.csproj", "{D54A8D73-F016-452C-A75F-60FFFBE43A90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kidsApp.Application", "kidsApp.Application\kidsApp.Application.csproj", "{6FB5A310-BE1E-4C91-8903-7262CA30DE0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kidsApp.Infrastructure", "kidaApp.Infrastructure\kidsApp.Infrastructure.csproj", "{4C0B9E40-1969-422C-BA34-8132F2781C83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kidsApp.API", "kidsApp.Api\kidsApp.API.csproj", "{E2665657-98CD-44D3-8600-6AA91C806AC9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D54A8D73-F016-452C-A75F-60FFFBE43A90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D54A8D73-F016-452C-A75F-60FFFBE43A90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D54A8D73-F016-452C-A75F-60FFFBE43A90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D54A8D73-F016-452C-A75F-60FFFBE43A90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FB5A310-BE1E-4C91-8903-7262CA30DE0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FB5A310-BE1E-4C91-8903-7262CA30DE0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FB5A310-BE1E-4C91-8903-7262CA30DE0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FB5A310-BE1E-4C91-8903-7262CA30DE0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C0B9E40-1969-422C-BA34-8132F2781C83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C0B9E40-1969-422C-BA34-8132F2781C83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C0B9E40-1969-422C-BA34-8132F2781C83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C0B9E40-1969-422C-BA34-8132F2781C83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2665657-98CD-44D3-8600-6AA91C806AC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2665657-98CD-44D3-8600-6AA91C806AC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2665657-98CD-44D3-8600-6AA91C806AC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2665657-98CD-44D3-8600-6AA91C806AC9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
