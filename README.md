@@ -1,2 +1,3 @@
 # GP-Wanesy-Backend
-Graduation Project 
+
+Graduation Project backend API built for supporting parents and their children through interactive educational activities.
