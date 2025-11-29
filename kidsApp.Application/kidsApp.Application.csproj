@@ -10,4 +10,9 @@
     <ProjectReference Include="..\kidsApp.Domain\kidsApp.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Dto\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
 </Project>

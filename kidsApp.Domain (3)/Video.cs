@@ -4,20 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Domain
+namespace kidsApp.Domain.Entites
 {
-    public class Game
+    public class Video
     {
         public int Id { get; set; }
-        public int GameId { get; set; }
+        //public int VideoId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public string Category { get; set; }
-        public string GameLink { get; set; }
-        public string DifficultyLevel { get; set; }
-        public int PointsRewarded { get; set; }
+        public string Duration { get; set; }
+        public string VideoUrl { get; set; }
 
         // Navigation
-        public ICollection<GameScore> Scores { get; set; }
+        public ICollection<VideoActivity> Activities { get; set; }
     }
 }

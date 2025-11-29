@@ -4,20 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Domain
+namespace kidsApp.Domain.Entites
 {
-    public class GameScore
+    public class TaskLog
     {
         public int Id { get; set; }
-        //public int ScoreId { get; set; }
+        //public int ActivityId { get; set; }
         public int ChildId { get; set; }
-        public int GameId { get; set; }
+        public int TaskId { get; set; }
 
-        public int ScoreValue { get; set; }
-        public int Attempts { get; set; }
+        public int PointsEarned { get; set; }
+        public string Status { get; set; }
 
         // Navigation
         public Child Child { get; set; }
-        public Game Game { get; set; }
+        public Task Task { get; set; }
     }
 }
