@@ -10,7 +10,7 @@ namespace kidsApp.Api
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddDbContext<KidsAppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
 
             // Add services to the container.
 
