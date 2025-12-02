@@ -1,6 +1,5 @@
 ﻿using kidsApp.Application.Dto.ActivityDTOs;
 using kidsApp.Application.Dto.ChildDTOs;
-using kidsApp.Application.Dto.KidsDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

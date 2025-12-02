@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -8,11 +8,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\kidsApp.Domain\kidsApp.Domain.csproj" />
+	<ProjectReference Include="..\kidsApp.Domain\kidsApp.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
-	  <Folder Include="Dto\"/>
+	  <Folder Include="Dto\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="15.1.0" />
   </ItemGroup>
 
 </Project>

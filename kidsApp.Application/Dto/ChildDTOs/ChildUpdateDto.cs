@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Dto.KidsDTOs
+namespace kidsApp.Application.Dto.ChildDTOs
 {
     public class ChildUpdateDto
     {
