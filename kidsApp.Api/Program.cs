@@ -1,5 +1,7 @@
 
+using kidsApp.Application.Interfaces;
 using kidsApp.Infrastructure.Data;
+using kidsApp.Infrastructure.unitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 namespace kidsApp.Api
@@ -10,7 +12,8 @@ namespace kidsApp.Api
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddDbContext<KidsAppDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Add services to the container.
 
