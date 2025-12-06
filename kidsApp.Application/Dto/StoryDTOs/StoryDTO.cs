@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace kidsApp.Application.Dto.StoryDTOs
+{
+    public class StoryDTO
+    {
+        public int StoryId { get; set; }
+        public string Title { get; set; }
+        public string StoryText { get; set; }
+        public string Difficulty { get; set; }
+    }
+
+}
