@@ -42,7 +42,7 @@ public class ChildService : IChildService
         if (entity == null) return false;
 
         _mapper.Map(dto, entity);
-        _repo.Update(entity); // Fixed method call to match IGenericRepository
+        _repo.UpdateAsync(entity); // Fixed method call to match IGenericRepository
         return true;
     }
 
@@ -51,7 +51,7 @@ public class ChildService : IChildService
         var entity = await _repo.GetByIdAsync(id);
         if (entity == null) return false;
 
-        _repo.Delete(entity); // Fixed method call to match IGenericRepository
+        _repo.DeleteAsync(entity); // Fixed method call to match IGenericRepository
         return true;
     }
 }
