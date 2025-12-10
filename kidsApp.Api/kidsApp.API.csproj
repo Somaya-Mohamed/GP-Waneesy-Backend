@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\kidaApp.Infrastructure\kidsApp.Infrastructure.csproj" />
+    <ProjectReference Include="..\kidsApp.Infrastructure\kidsApp.Infrastructure.csproj" />
     <ProjectReference Include="..\kidsApp.Application\kidsApp.Application.csproj" />
   </ItemGroup>
 

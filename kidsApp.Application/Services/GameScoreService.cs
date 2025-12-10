@@ -54,15 +54,10 @@ namespace kidsApp.Infrastructure.Services
         {
             var entity = await _repo.GetByIdAsync(id);
             if (entity == null) return false;
-
             await _repo.DeleteAsync(entity);
             return true;
         }
     }
-    public class GameScoreUpdateDTO
-    {
-        public int ScoreValue { get; set; }
-        public int Attempts { get; set; }
-        // Add other properties as needed based on the GameScore entity
-    }
+
+
 }

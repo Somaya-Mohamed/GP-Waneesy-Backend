@@ -8,15 +8,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\kidsApp.Domain\kidsApp.Domain.csproj" />
-	<ProjectReference Include="..\kidsApp.Domain\kidsApp.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-	  <Folder Include="Dto\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="15.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\S_Interfaces\" />
   </ItemGroup>
 
 </Project>

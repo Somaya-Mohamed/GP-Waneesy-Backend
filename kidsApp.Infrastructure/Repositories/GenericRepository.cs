@@ -25,10 +25,19 @@ namespace kidsApp.Infrastructure.Repositories
         public async Task AddAsync(T entity)
             => await _dbSet.AddAsync(entity);
 
-        public void Update(T entity)
-            => _dbSet.Update(entity);
+        public Task UpdateAsync(T entity)
+        {
+            _dbSet.Update(entity);
+            return Task.CompletedTask;
+        }
 
-        public void Delete(T entity)
-            => _dbSet.Remove(entity);
+        public Task DeleteAsync(T entity)
+        {
+            _dbSet.Remove(entity);
+            return Task.CompletedTask;
+        }
     }
 }
+
+
+

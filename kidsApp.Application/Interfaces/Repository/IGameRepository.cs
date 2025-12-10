@@ -10,8 +10,6 @@ namespace kidsApp.Application.Interfaces.Repository
 {
     public interface IGameRepository : IGenericRepository<Game>
     {
-        Task UpdateAsync(Game entity); // Add this method to match the usage in GameService
-        Task DeleteAsync(Game entity); // Add this method to match the usage in GameService
     }
 
 }
