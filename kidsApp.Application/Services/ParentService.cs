@@ -42,7 +42,7 @@ public class ParentService : IParentService
         if (entity == null) return false;
 
         _mapper.Map(dto, entity);
-        _repo.Update(entity);
+        _repo.UpdateAsync(entity);
         return true;
     }
 
@@ -51,7 +51,7 @@ public class ParentService : IParentService
         var entity = await _repo.GetByIdAsync(id);
         if (entity == null) return false;
 
-        _repo.Delete(entity);
+        _repo.DeleteAsync(entity);
         return true;
     }
 }
