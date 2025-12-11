@@ -1,11 +1,11 @@
-﻿using kidsApp.Application.Dto.StoryProgress_DTOs;
+﻿using kidsApp.Application.DTOs.StoryProgress_DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Services.S_Interfaces
+namespace kidsApp.Application.Services.Interfaces
 {
     public interface IStoryProgressService
     {

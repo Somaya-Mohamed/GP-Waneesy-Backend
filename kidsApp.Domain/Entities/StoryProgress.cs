@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Domain.Entites
+namespace kidsApp.Domain.Entities
 {
     public class StoryProgress
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Dto.ActivityDTOs
+namespace kidsApp.Application.DTOs.ActivityDTOs
 {
     public class ActivityReadDto
     {

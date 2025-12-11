@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Dto.ProgressDTOs
+namespace kidsApp.Application.DTOs.ProgressDTOs
 {
     public class ProgressCreateDto
     {

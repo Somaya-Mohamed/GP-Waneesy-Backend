@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Dto.StoryProgress_DTOs
+namespace kidsApp.Application.DTOs.StoryProgress_DTOs
 {
     public class StoryProgressDTO
     {

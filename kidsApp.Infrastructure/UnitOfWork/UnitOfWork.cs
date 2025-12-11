@@ -1,6 +1,5 @@
-﻿using kidsApp.Application.Interfaces;
-using kidsApp.Application.Interfaces.Repository;
-using kidsApp.Domain.Entites;
+﻿using kidsApp.Domain.Contracts;
+using kidsApp.Domain.Entities;
 using kidsApp.Infrastructure.Data;
 using kidsApp.Infrastructure.Repositories;
 

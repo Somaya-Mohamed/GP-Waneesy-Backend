@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Dto.GameDTOs
+namespace kidsApp.Application.DTOs.GameDTOs
 {
     public class GameReadDto
     {

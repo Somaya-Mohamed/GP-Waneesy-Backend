@@ -1,12 +1,11 @@
-﻿using kidsApp.Domain.Entites;
+﻿using kidsApp.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using kidsApp.Application.Interfaces;
 
-namespace kidsApp.Application.Interfaces.Repository
+namespace kidsApp.Domain.Contracts
 {
     public interface IChildRepository : IGenericRepository<Child>
     {

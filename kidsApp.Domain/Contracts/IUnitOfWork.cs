@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks;
-using kidsApp.Application.Interfaces.Repository;
-using kidsApp.Domain.Entites;
+using kidsApp.Domain.Entities;
 
-namespace kidsApp.Application.Interfaces
+namespace kidsApp.Domain.Contracts
 {
 
     public interface IUnitOfWork : IDisposable

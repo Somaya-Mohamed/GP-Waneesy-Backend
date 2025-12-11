@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
-using kidsApp.Application.Dto.GameDTOs;
-using kidsApp.Application.Dto.GameScoreDTOs;
-using kidsApp.Application.Interfaces;
-using kidsApp.Application.Interfaces.Repository;
-using kidsApp.Application.Services.S_Interfaces;
+using kidsApp.Application.DTOs.GameDTOs;
+using kidsApp.Application.DTOs.GameScoreDTOs;
+using kidsApp.Application.Services.Interfaces;
 using kidsApp.Domain;
-using kidsApp.Domain.Entites;
+using kidsApp.Domain.Contracts;
+using kidsApp.Domain.Entities;
 
-namespace kidsApp.Application.Services.S_Classes
+namespace kidsApp.Application.Services.Classes
 {
     public class GameScoreService : IGameScoreService
     {
