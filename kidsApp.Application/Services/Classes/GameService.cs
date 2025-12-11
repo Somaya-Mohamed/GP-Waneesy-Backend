@@ -2,16 +2,16 @@
 using kidsApp.Application.Dto.GameDTOs;
 using kidsApp.Application.Interfaces;
 using kidsApp.Application.Interfaces.Repository;
-using kidsApp.Application.Services;
+using kidsApp.Application.Services.S_Interfaces;
 using kidsApp.Domain;
 using kidsApp.Domain.Entites;
 
 public class GameService : IGameService
 {
-    private readonly IGameRepository _repo;
+    private readonly IGenericRepository<Game> _repo;
     private readonly IMapper _mapper;
 
-    public GameService(IGameRepository repo, IMapper mapper)
+    public GameService(IGenericRepository<Game> repo, IMapper mapper)
     {
         _repo = repo;
         _mapper = mapper;
