@@ -1,5 +1,4 @@
-﻿using kidsApp.Application.Interfaces;
-using kidsApp.Application.Interfaces.Repository;
+﻿using kidsApp.Domain.Contracts;
 using kidsApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
