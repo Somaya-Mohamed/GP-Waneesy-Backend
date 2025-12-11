@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Domain.Entites
+namespace kidsApp.Domain.Entities
 {
-    public class Video
+    public class Tasks
     {
         public int Id { get; set; }
-        //public int VideoId { get; set; }
+        //public int TaskId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public string Category { get; set; }
@@ -17,6 +17,6 @@ namespace kidsApp.Domain.Entites
         public string VideoUrl { get; set; }
 
         // Navigation
-        public ICollection<VideoActivity> Activities { get; set; }
+        public ICollection<TaskLog> TaskLogs { get; set; }
     }
 }

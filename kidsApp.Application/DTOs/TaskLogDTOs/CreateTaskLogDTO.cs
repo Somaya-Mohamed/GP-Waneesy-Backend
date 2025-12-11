@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Dto.TaskLogDTOs
+namespace kidsApp.Application.DTOs.TaskLogDTOs
 {
     public class CreateTaskLogDTO
     {

@@ -1,11 +1,11 @@
-﻿using kidsApp.Application.Dto.ParentDTOs;
+﻿using kidsApp.Application.DTOs.ParentDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Services.S_Interfaces
+namespace kidsApp.Application.Services.Interfaces
 {
     public interface IParentService
     {

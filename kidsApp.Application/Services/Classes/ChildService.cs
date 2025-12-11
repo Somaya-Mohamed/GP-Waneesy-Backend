@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
-using kidsApp.Application.Dto.ChildDTOs;
-using kidsApp.Application.Interfaces;
-using kidsApp.Application.Interfaces.Repository;
-using kidsApp.Application.Services.S_Interfaces;
-using kidsApp.Domain;
-using kidsApp.Domain.Entites;
+using kidsApp.Application.DTOs.ChildDTOs;
+using kidsApp.Application.Services.Interfaces;
+using kidsApp.Domain.Contracts;
+using kidsApp.Domain.Entities;
 
 public class ChildService : IChildService
 {

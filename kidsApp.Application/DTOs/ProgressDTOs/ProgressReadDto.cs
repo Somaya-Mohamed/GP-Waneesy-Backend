@@ -1,12 +1,12 @@
-﻿using kidsApp.Application.Dto.ActivityDTOs;
-using kidsApp.Application.Dto.ChildDTOs;
+﻿using kidsApp.Application.DTOs.ActivityDTOs;
+using kidsApp.Application.DTOs.ChildDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Dto.ProgressDTOs
+namespace kidsApp.Application.DTOs.ProgressDTOs
 {
     public class ProgressReadDto
     {

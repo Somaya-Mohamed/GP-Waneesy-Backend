@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Dto.VideoActivityDTOs
+namespace kidsApp.Application.DTOs.VideoActivityDTOs
 {
     public class VideoActivityDTO
     {
