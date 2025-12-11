@@ -3,18 +3,18 @@ using kidsApp.Application.Dto.GameDTOs;
 using kidsApp.Application.Dto.GameScoreDTOs;
 using kidsApp.Application.Interfaces;
 using kidsApp.Application.Interfaces.Repository;
-using kidsApp.Application.Services;
+using kidsApp.Application.Services.S_Interfaces;
 using kidsApp.Domain;
 using kidsApp.Domain.Entites;
 
-namespace kidsApp.Infrastructure.Services
+namespace kidsApp.Application.Services.S_Classes
 {
     public class GameScoreService : IGameScoreService
     {
-        private readonly IGameScoreRepository _repo;
+        private readonly IGenericRepository<GameScore> _repo;
         private readonly IMapper _mapper;
 
-        public GameScoreService(IGameScoreRepository repo, IMapper mapper)
+        public GameScoreService(IGenericRepository<GameScore> repo, IMapper mapper)
         {
             _repo = repo;
             _mapper = mapper;

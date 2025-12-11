@@ -1,5 +1,6 @@
 ﻿using kidsApp.Application.Interfaces;
 using kidsApp.Application.Interfaces.Repository;
+using kidsApp.Domain.Entites;
 using kidsApp.Infrastructure.Data;
 using kidsApp.Infrastructure.Repositories;
 
@@ -9,38 +10,36 @@ namespace kidsApp.Infrastructure.unitOfWork
     {
         private readonly KidsAppDbContext _context;
 
+        private ChildRepository? _childRepository;
+        private ParentRepository? _parentRepository;
+
         public UnitOfWork(KidsAppDbContext context)
         {
             _context = context;
-
-            Parents = new ParentRepository(context);
-            Children = new ChildRepository(context);
-            Stories = new StoryRepository(context);
-            StoryProgress = new StoryProgressRepository(context);
-            Videos = new VideoRepository(context);
-            VideoActivities = new VideoActivityRepository(context);
-            Games = new GameRepository(context);
-            GameScores = new GameScoreRepository(context);
-            Tasks = new TaskRepository(context);
-            TaskLogs = new TaskLogRepository(context);
-            Reports = new ReportRepository(context);
         }
 
-        public IParentRepository Parents { get; }
-        public IChildRepository Children { get; }
-        public IStoryRepository Stories { get; }
-        public IStoryProgressRepository StoryProgress { get; }
-        public IVideoRepository Videos { get; }
-        public IVideoActivityRepository VideoActivities { get; }
-        public IGameRepository Games { get; }
-        public IGameScoreRepository GameScores { get; }
-        public ITaskRepository Tasks { get; }
-        public ITaskLogRepository TaskLogs { get; }
-        public IReportRepository Reports { get; }
+        public IChildRepository Children => _childRepository ??= new ChildRepository(_context);
+        public IParentRepository Parents => _parentRepository ??= new ParentRepository(_context);
 
-        public async Task<int> SaveAsync()
+        public IGenericRepository<Story> Stories => new GenericRepository<Story>(_context);
+        public IGenericRepository<Video> Videos => new GenericRepository<Video>(_context);
+        public IGenericRepository<Game> Games => new GenericRepository<Game>(_context);
+        public IGenericRepository<Tasks> Tasks => new GenericRepository<Tasks>(_context);
+        public IGenericRepository<StoryProgress> StoryProgress => new GenericRepository<StoryProgress>(_context);
+        public IGenericRepository<VideoActivity> VideoActivities => new GenericRepository<VideoActivity>(_context);
+        public IGenericRepository<GameScore> GameScores => new GenericRepository<GameScore>(_context);
+        public IGenericRepository<TaskLog> TaskLogs => new GenericRepository<TaskLog>(_context);
+        public IGenericRepository<Report> Reports => new GenericRepository<Report>(_context);
+
+        public async Task<int> SaveChangesAsync(CancellationToken ct = default)
+            => await _context.SaveChangesAsync(ct);
+
+        public void Dispose()
         {
-            return await _context.SaveChangesAsync();
+            _context.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }
+
+

@@ -18,6 +18,6 @@ namespace kidsApp.Domain.Entites
 
         // Navigation
         public Child Child { get; set; }
-        public Task Task { get; set; }
+        public Tasks Task { get; set; }
     }
 }

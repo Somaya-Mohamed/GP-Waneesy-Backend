@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Services
+namespace kidsApp.Application.Services.S_Interfaces
 {
     public interface IVideoService
     {
