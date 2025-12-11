@@ -2,7 +2,7 @@
 using kidsApp.Application.Dto.ParentDTOs;
 using kidsApp.Application.Interfaces;
 using kidsApp.Application.Interfaces.Repository;
-using kidsApp.Application.Services;
+using kidsApp.Application.Services.S_Interfaces;
 using kidsApp.Domain;
 using kidsApp.Domain.Entites;
 

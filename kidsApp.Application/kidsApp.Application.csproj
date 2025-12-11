@@ -15,7 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\S_Interfaces\" />
+    <Folder Include="Mapping\" />
+    <Folder Include="ServiceManager\" />
   </ItemGroup>
 
 </Project>

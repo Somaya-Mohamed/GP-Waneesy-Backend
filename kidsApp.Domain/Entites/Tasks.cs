@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace kidsApp.Domain.Entites
 {
-    public class Task
+    public class Tasks
     {
         public int Id { get; set; }
         //public int TaskId { get; set; }

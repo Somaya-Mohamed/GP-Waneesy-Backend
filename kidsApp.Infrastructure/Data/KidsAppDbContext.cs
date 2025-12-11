@@ -31,7 +31,7 @@ namespace kidsApp.Infrastructure.Data
         public DbSet<Game> Games { get; set; }
         public DbSet<GameScore> GameScores { get; set; }
 
-        public DbSet<Domain.Entites.Task> Tasks { get; set; }
+        public DbSet<Domain.Entites.Tasks> Tasks { get; set; }
         public DbSet<TaskLog> TaskLogs { get; set; }
 
         public DbSet<Report> Reports { get; set; }

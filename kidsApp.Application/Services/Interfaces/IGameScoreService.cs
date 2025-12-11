@@ -1,13 +1,12 @@
 ﻿using kidsApp.Application.Dto.ChildDTOs;
 using kidsApp.Application.Dto.GameScoreDTOs;
-using kidsApp.Infrastructure.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Services
+namespace kidsApp.Application.Services.S_Interfaces
 {
     public interface IGameScoreService
     {
