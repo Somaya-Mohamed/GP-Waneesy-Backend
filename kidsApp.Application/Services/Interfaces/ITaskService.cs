@@ -1,8 +1,6 @@
 ﻿using kidsApp.Application.DTOs.TaskDTOs;
-using System;
+using kidsApp.Application.DTOs.TaskLogDTOs;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace kidsApp.Application.Services.Interfaces
@@ -14,6 +12,9 @@ namespace kidsApp.Application.Services.Interfaces
         Task<TaskDTO> CreateAsync(CreateTaskDTO dto);
         Task<bool> UpdateAsync(int id, UpdateTaskDTO dto);
         Task<bool> DeleteAsync(int id);
-    }
 
+        // Advanced Methods
+        Task<IEnumerable<TaskLogDTO>> GetTaskLogsByTaskIdAsync(int taskId);
+        Task<IEnumerable<TaskDTO>> GetTasksByDifficultyAsync(string level);
+    }
 }

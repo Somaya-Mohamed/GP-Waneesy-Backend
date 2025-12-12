@@ -1,8 +1,6 @@
 ﻿using kidsApp.Application.DTOs.StoryDTOs;
-using System;
+using kidsApp.Application.DTOs.StoryProgress_DTOs;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace kidsApp.Application.Services.Interfaces
@@ -14,6 +12,9 @@ namespace kidsApp.Application.Services.Interfaces
         Task<StoryDTO> CreateAsync(CreateStoryDTO dto);
         Task<bool> UpdateAsync(int id, UpdateStoryDTO dto);
         Task<bool> DeleteAsync(int id);
-    }
 
+        // Advanced Methods
+        Task<IEnumerable<StoryProgressDTO>> GetStoryProgressByIdAsync(int storyId);
+        Task<IEnumerable<StoryDTO>> GetStoriesByCategoryAsync(string category);
+    }
 }
