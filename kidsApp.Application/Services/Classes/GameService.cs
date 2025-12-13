@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using kidsApp.Application.DTOs.GameDTOs;
 using kidsApp.Application.Services.Interfaces;
-using kidsApp.Domain;
 using kidsApp.Domain.Contracts;
 using kidsApp.Domain.Entities;
 
@@ -16,6 +15,7 @@ public class GameService : IGameService
         _mapper = mapper;
     }
 
+    // CRUD
     public async Task<IEnumerable<GameReadDto>> GetAllAsync()
     {
         var data = await _repo.GetAllAsync();
@@ -52,5 +52,12 @@ public class GameService : IGameService
 
         await _repo.DeleteAsync(entity);
         return true;
+    }
+
+    // Advanced Methods
+    public async Task<IEnumerable<GameReadDto>> GetGamesByDifficultyAsync(string level)
+    {
+        var data = (await _repo.GetAllAsync()).Where(g => g.DifficultyLevel == level);
+        return _mapper.Map<IEnumerable<GameReadDto>>(data);
     }
 }
