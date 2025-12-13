@@ -1,19 +1,17 @@
 ﻿using kidsApp.Application.DTOs.ParentDTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using kidsApp.Application.DTOs.ProgressDTOs;
 
-namespace kidsApp.Application.Services.Interfaces
+public interface IParentService
 {
-    public interface IParentService
-    {
-        Task<IEnumerable<ParentReadDto>> GetAllAsync();
-        Task<ParentReadDto> GetByIdAsync(int id);
-        Task<ParentReadDto> CreateAsync(ParentCreateDto dto);
-        Task<bool> UpdateAsync(int id, UpdateParentDTO dto);
-        Task<bool> DeleteAsync(int id);
-    }
+    // Basic CRUD
+    Task<IEnumerable<ParentReadDto>> GetAllAsync();
+    Task<ParentReadDto> GetByIdAsync(int id);
+    Task<ParentReadDto> CreateAsync(ParentCreateDto dto);
+    Task<bool> UpdateAsync(int id, UpdateParentDTO dto);
+    Task<bool> DeleteAsync(int id);
 
+    // Advanced
+    Task<IEnumerable<ChildSummaryDTO>> GetChildrenSummaryAsync(int parentId);
+    Task<IEnumerable<ProgressReadDto>> GetWeeklyChildReportsAsync(int parentId);
+    Task<string?> LoginAsync(string email, string password);
 }

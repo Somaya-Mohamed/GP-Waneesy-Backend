@@ -19,5 +19,6 @@ namespace kidsApp.Domain.Entities
         // Navigation
         public Child Child { get; set; }
         public Game Game { get; set; }
+        public DateTime Date { get; set; }
     }
 }

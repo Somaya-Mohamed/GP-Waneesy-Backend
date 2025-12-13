@@ -1,8 +1,5 @@
 ﻿using kidsApp.Application.DTOs.GameDTOs;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace kidsApp.Application.Services.Interfaces
@@ -14,6 +11,8 @@ namespace kidsApp.Application.Services.Interfaces
         Task<GameReadDto> CreateAsync(GameCreateDTO dto);
         Task<bool> UpdateAsync(int id, GameUpdateDTO dto);
         Task<bool> DeleteAsync(int id);
-    }
 
+        // Advanced methods
+        Task<IEnumerable<GameReadDto>> GetGamesByDifficultyAsync(string difficulty);
+    }
 }
