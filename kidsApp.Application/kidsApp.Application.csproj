@@ -14,9 +14,4 @@
     <PackageReference Include="AutoMapper" Version="15.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Mapping\" />
-    <Folder Include="ServiceManager\" />
-  </ItemGroup>
-
 </Project>

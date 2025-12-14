@@ -1,84 +1,168 @@
 ﻿using kidsApp.Application.DTOs.GameDTOs;
-using kidsApp.Application.DTOs.GameScoreDTOs;
-using kidsApp.Application.Services.Interfaces;
+using kidsApp.Application.ServiceManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kidsApp.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/v1/games")]
     [Authorize]
-    public class GameController : ControllerBase
+    public class GamesController : ControllerBase
     {
-        private readonly IGameService _gameService;
-        private readonly IGameScoreService _gameScoreService;
+        private readonly IServiceManager _serviceManager;
 
-        public GameController(IGameService gameService, IGameScoreService gameScoreService)
+        public GamesController(IServiceManager serviceManager)
         {
-            _gameService = gameService;
-            _gameScoreService = gameScoreService;
+            _serviceManager = serviceManager;
         }
 
+        // GET: api/v1/games
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var games = await _gameService.GetAllAsync();
-            return Ok(new { Success = true, Data = games });
+            var games = await _serviceManager.GameService.GetAllAsync();
+            return Ok(new
+            {
+                Success = true,
+                Message = "Games retrieved successfully",
+                Data = games
+            });
         }
 
-        [HttpGet("{id}")]
+        // GET: api/v1/games/5
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var game = await _gameService.GetByIdAsync(id);
-            if (game == null) return NotFound(new { Success = false, Message = "Game not found" });
-            return Ok(new { Success = true, Data = game });
+            var game = await _serviceManager.GameService.GetByIdAsync(id);
+            if (game == null)
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = "Game not found"
+                });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Game retrieved successfully",
+                Data = game
+            });
         }
 
+        // POST: api/v1/games
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] GameCreateDTO dto)
         {
-            var created = await _gameService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.GameId }, new { Success = true, Data = created });
+            if (!ModelState.IsValid)
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Invalid data",
+                    Errors = ModelState
+                });
+
+            var created = await _serviceManager.GameService.CreateAsync(dto);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = created.GameId },
+                new
+                {
+                    Success = true,
+                    Message = "Game created successfully",
+                    Data = created
+                });
         }
 
-        [HttpPut("{id}")]
+        // PUT: api/v1/games/5
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] GameUpdateDTO dto)
         {
-            var updated = await _gameService.UpdateAsync(id, dto);
-            if (!updated) return NotFound(new { Success = false, Message = "Game not found" });
-            return NoContent();
+            if (!ModelState.IsValid)
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Invalid data",
+                    Errors = ModelState
+                });
+
+            var updated = await _serviceManager.GameService.UpdateAsync(id, dto);
+            if (!updated)
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = "Game not found"
+                });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Game updated successfully"
+            });
         }
 
-        [HttpDelete("{id}")]
+        // DELETE: api/v1/games/5
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _gameService.DeleteAsync(id);
-            if (!deleted) return NotFound(new { Success = false, Message = "Game not found" });
-            return NoContent();
+            var deleted = await _serviceManager.GameService.DeleteAsync(id);
+            if (!deleted)
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = "Game not found"
+                });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Game deleted successfully"
+            });
         }
 
-        // Advanced Endpoints
+        // ================= Advanced Endpoints =================
 
-        [HttpGet("{id}/scores")]
+        // GET: api/v1/games/5/scores
+        [HttpGet("{id:int}/scores")]
         public async Task<IActionResult> GetScores(int id)
         {
-            var scores = await _gameScoreService.GetScoresByGameIdAsync(id);
-            return Ok(new { Success = true, Data = scores });
+            var scores = await _serviceManager.GameScoreService.GetScoresByGameIdAsync(id);
+            return Ok(new
+            {
+                Success = true,
+                Message = "Game scores retrieved successfully",
+                Data = scores
+            });
         }
 
+        // GET: api/v1/games/top-scores?topCount=5
         [HttpGet("top-scores")]
         public async Task<IActionResult> GetTopScores([FromQuery] int topCount = 5)
         {
-            var topScores = await _gameScoreService.GetTopScoresAsync(topCount);
-            return Ok(new { Success = true, Data = topScores });
+            if (topCount <= 0) topCount = 5;
+            if (topCount > 50) topCount = 50;
+
+            var topScores = await _serviceManager.GameScoreService.GetTopScoresAsync(topCount);
+            return Ok(new
+            {
+                Success = true,
+                Message = "Top game scores retrieved successfully",
+                Data = topScores
+            });
         }
 
+        // GET: api/v1/games/difficulty/easy
         [HttpGet("difficulty/{level}")]
         public async Task<IActionResult> GetByDifficulty(string level)
         {
-            var games = await _gameService.GetGamesByDifficultyAsync(level);
-            return Ok(new { Success = true, Data = games });
+            var games = await _serviceManager.GameService.GetGamesByDifficultyAsync(level);
+            return Ok(new
+            {
+                Success = true,
+                Message = "Games retrieved successfully",
+                Data = games
+            });
         }
     }
 }
