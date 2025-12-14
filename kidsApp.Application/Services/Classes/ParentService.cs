@@ -7,58 +7,61 @@ using kidsApp.Domain.Entities;
 
 public class ParentService : IParentService
 {
-    private readonly IParentRepository _repo;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public ParentService(IParentRepository repo, IMapper mapper)
+    public ParentService(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _repo = repo;
+        _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
+
 
     // CRUD
     public async Task<IEnumerable<ParentReadDto>> GetAllAsync()
     {
-        var data = await _repo.GetAllAsync();
+        var data = await _unitOfWork.Parents.GetAllAsync();
         return _mapper.Map<IEnumerable<ParentReadDto>>(data);
     }
 
     public async Task<ParentReadDto> GetByIdAsync(int id)
     {
-        var entity = await _repo.GetByIdAsync(id);
+        var entity = await _unitOfWork.Parents.GetByIdAsync(id);
         return _mapper.Map<ParentReadDto>(entity);
     }
 
     public async Task<ParentReadDto> CreateAsync(ParentCreateDto dto)
     {
         var entity = _mapper.Map<Parent>(dto);
-        await _repo.AddAsync(entity);
+        await _unitOfWork.Parents.AddAsync(entity);
         return _mapper.Map<ParentReadDto>(entity);
     }
 
     public async Task<bool> UpdateAsync(int id, UpdateParentDTO dto)
     {
-        var entity = await _repo.GetByIdAsync(id);
+        var entity = await _unitOfWork.Parents.GetByIdAsync(id);
         if (entity == null) return false;
 
         _mapper.Map(dto, entity);
-        await _repo.UpdateAsync(entity);
+        _unitOfWork.Parents.Update(entity);
+        await _unitOfWork.SaveChangesAsync();
         return true;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var entity = await _repo.GetByIdAsync(id);
+        var entity = await _unitOfWork.Parents.GetByIdAsync(id);
         if (entity == null) return false;
 
-        await _repo.DeleteAsync(entity);
+        _unitOfWork.Parents.Delete(entity);
+        await _unitOfWork.SaveChangesAsync();
         return true;
     }
 
     // Advanced
     public async Task<IEnumerable<ChildSummaryDTO>> GetChildrenSummaryAsync(int parentId)
     {
-        var parent = await _repo.GetByIdAsync(parentId);
+        var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
         if (parent == null) return Enumerable.Empty<ChildSummaryDTO>();
 
         return parent.Children?.Select(c => new ChildSummaryDTO
@@ -71,7 +74,7 @@ public class ParentService : IParentService
 
     public async Task<IEnumerable<ProgressReadDto>> GetWeeklyChildReportsAsync(int parentId)
     {
-        var parent = await _repo.GetByIdAsync(parentId);
+        var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
         if (parent == null) return Enumerable.Empty<ProgressReadDto>();
 
         var lastWeek = DateTime.UtcNow.AddDays(-7);
@@ -87,7 +90,7 @@ public class ParentService : IParentService
 
     public async Task<string?> LoginAsync(string email, string password)
     {
-        var parent = (await _repo.GetAllAsync())
+        var parent = (await _unitOfWork.Parents.GetAllAsync())
                      .FirstOrDefault(p => p.Email == email && p.Password == password);
 
         if (parent == null) return null;

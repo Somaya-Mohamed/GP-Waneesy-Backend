@@ -11,10 +11,10 @@ namespace kidsApp.Domain.Entities
         public int Id { get; set; }
         //public int ChildId { get; set; }
         public string Name { get; set; }
-        public string Gender { get; set; }
-        public string Avatar { get; set; }
         public int Age { get; set; }
-        public string Preferences { get; set; }
+        public string? Gender { get; set; }
+        public string? Avatar { get; set; }
+        public string? Preferences { get; set; }
 
         // Foreign Key
         public int ParentId { get; set; }

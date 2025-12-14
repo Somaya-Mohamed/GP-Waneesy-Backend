@@ -9,7 +9,8 @@ namespace kidsApp.Domain.Contracts
 {
     public interface IChildRepository : IGenericRepository<Child>
     {
-        Task<IEnumerable<Child>> GetChildrenByParentId(int parentId);
-    
+        Task<IReadOnlyList<Child>> GetChildrenByParentIdAsync(int parentId);
+        //Task<IEnumerable<Child>> GetChildrenByParentId(int parentId);
+
     }
 }

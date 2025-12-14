@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using kidsApp.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using kidsApp.Infrastructure.Data;
 namespace kidsApp.Infrastructure.Migrations
 {
     [DbContext(typeof(KidsAppDbContext))]
-    partial class KidsAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251213201749_Edit")]
+    partial class Edit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,35 +34,32 @@ namespace kidsApp.Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Age")
-                        .HasColumnType("int")
-                        .HasAnnotation("MaxValue", 18)
-                        .HasAnnotation("MinValue", 1);
+                        .HasColumnType("int");
 
                     b.Property<string>("Avatar")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Gender")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ParentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Preferences")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Children", (string)null);
+                    b.ToTable("Children");
                 });
 
             modelBuilder.Entity("kidsApp.Domain.Entities.Game", b =>
@@ -143,18 +143,15 @@ namespace kidsApp.Infrastructure.Migrations
 
                     b.Property<string>("Country")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -162,13 +159,9 @@ namespace kidsApp.Infrastructure.Migrations
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
 
                     b.ToTable("Parents");
                 });
