@@ -8,7 +8,7 @@ namespace kidsApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class ParentsController : ControllerBase
     {
         private readonly IParentService _parentService;

@@ -19,7 +19,7 @@ namespace kidsApp.Domain.Contracts
         IGenericRepository<TaskLog> TaskLogs { get; }
         IGenericRepository<Report> Reports { get; }
 
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        Task<int> SaveChangesAsync(CancellationToken ct = default);
     }
 }
 
