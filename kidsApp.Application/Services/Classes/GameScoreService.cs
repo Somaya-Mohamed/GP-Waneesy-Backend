@@ -6,64 +6,67 @@ using kidsApp.Domain.Entities;
 
 public class GameScoreService : IGameScoreService
 {
-    private readonly IGenericRepository<GameScore> _repo;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public GameScoreService(IGenericRepository<GameScore> repo, IMapper mapper)
+    public GameScoreService(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _repo = repo;
+        _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
 
     // CRUD
     public async Task<IEnumerable<GameScoreDTO>> GetAllAsync()
     {
-        var data = await _repo.GetAllAsync();
+        var data = await _unitOfWork.GameScores.GetAllAsync();
         return _mapper.Map<IEnumerable<GameScoreDTO>>(data);
     }
 
+
     public async Task<GameScoreDTO> GetByIdAsync(int id)
     {
-        var entity = await _repo.GetByIdAsync(id);
+        var entity = await _unitOfWork.GameScores.GetByIdAsync(id);
         return _mapper.Map<GameScoreDTO>(entity);
     }
 
     public async Task<GameScoreDTO> CreateAsync(GameScoreCreateDTO dto)
     {
         var entity = _mapper.Map<GameScore>(dto);
-        await _repo.AddAsync(entity);
+        await _unitOfWork.GameScores.AddAsync(entity);
         return _mapper.Map<GameScoreDTO>(entity);
     }
 
     public async Task<bool> UpdateAsync(int id, GameScoreUpdateDTO dto)
     {
-        var entity = await _repo.GetByIdAsync(id);
+        var entity = await _unitOfWork.GameScores.GetByIdAsync(id);
         if (entity == null) return false;
 
         _mapper.Map(dto, entity);
-        await _repo.UpdateAsync(entity);
+        _unitOfWork.GameScores.Update(entity);
+        await _unitOfWork.SaveChangesAsync();
         return true;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var entity = await _repo.GetByIdAsync(id);
+        var entity = await _unitOfWork.GameScores.GetByIdAsync(id);
         if (entity == null) return false;
 
-        await _repo.DeleteAsync(entity);
+        _unitOfWork.GameScores.Delete(entity);
+        await _unitOfWork.SaveChangesAsync();
         return true;
     }
 
     // Advanced Methods
     public async Task<IEnumerable<GameScoreDTO>> GetScoresByGameIdAsync(int gameId)
     {
-        var scores = (await _repo.GetAllAsync()).Where(s => s.GameId == gameId);
+        var scores = (await _unitOfWork.GameScores.GetAllAsync()).Where(s => s.GameId == gameId);
         return _mapper.Map<IEnumerable<GameScoreDTO>>(scores);
     }
 
     public async Task<IEnumerable<GameScoreDTO>> GetTopScoresAsync(int topCount)
     {
-        var scores = (await _repo.GetAllAsync())
+        var scores = (await _unitOfWork.GameScores.GetAllAsync())
             .OrderByDescending(s => s.ScoreValue)
             .Take(topCount);
         return _mapper.Map<IEnumerable<GameScoreDTO>>(scores);

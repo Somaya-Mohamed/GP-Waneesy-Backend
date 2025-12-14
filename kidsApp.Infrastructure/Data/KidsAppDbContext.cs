@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Reflection.Emit;
+﻿using kidsApp.Domain.Entities;
+using kidsApp.Infrastructure.Data.Configurations;
 using Microsoft.EntityFrameworkCore;
-using kidsApp.Domain.Entities;
+using System.Collections.Generic;
+using System.Reflection.Emit;
 
 
 
@@ -38,92 +39,103 @@ namespace kidsApp.Infrastructure.Data
 
 
         // ======================
-        //  Fluent API Relations
+        //  Configurations
         // ======================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ChildConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ParentConfiguration).Assembly);
+
             base.OnModelCreating(modelBuilder);
-
-            // --------------------------------------
-            // Parent → Children  (1 : Many)
-            // --------------------------------------
-            modelBuilder.Entity<Parent>()
-                .HasMany(p => p.Children)
-                .WithOne(c => c.Parent)
-                .HasForeignKey(c => c.ParentId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-
-            // --------------------------------------
-            // Child → StoryProgress (1 : Many)
-            // --------------------------------------
-            modelBuilder.Entity<StoryProgress>()
-                .HasOne(sp => sp.Child)
-                .WithMany(c => c.StoryProgress)
-                .HasForeignKey(sp => sp.ChildId);
-
-            modelBuilder.Entity<StoryProgress>()
-                .HasOne(sp => sp.Story)
-                .WithMany(s => s.StoryProgress)
-                .HasForeignKey(sp => sp.StoryId);
-
-
-            // --------------------------------------
-            // Child → VideoActivity (1 : Many)
-            // --------------------------------------
-            modelBuilder.Entity<VideoActivity>()
-                .HasOne(va => va.Child)
-                .WithMany(c => c.VideoActivities)
-                .HasForeignKey(va => va.ChildId);
-
-            modelBuilder.Entity<VideoActivity>()
-                .HasOne(va => va.Video)
-                .WithMany(v => v.Activities)
-                .HasForeignKey(va => va.VideoId);
-
-
-            // --------------------------------------
-            // Child → GameScore (1 : Many)
-            // --------------------------------------
-            modelBuilder.Entity<GameScore>()
-                .HasOne(gs => gs.Child)
-                .WithMany(c => c.GameScores)
-                .HasForeignKey(gs => gs.ChildId);
-
-            modelBuilder.Entity<GameScore>()
-                .HasOne(gs => gs.Game)
-                .WithMany(g => g.Scores)
-                .HasForeignKey(gs => gs.GameId);
-
-
-            // --------------------------------------
-            // Child → TaskLog (1 : Many)
-            // --------------------------------------
-            modelBuilder.Entity<TaskLog>()
-                .HasOne(tl => tl.Child)
-                .WithMany(c => c.TaskLogs)
-                .HasForeignKey(tl => tl.ChildId);
-
-            modelBuilder.Entity<TaskLog>()
-                .HasOne(tl => tl.Task)
-                .WithMany(t => t.TaskLogs)
-                .HasForeignKey(tl => tl.TaskId);
-
-
-            // --------------------------------------
-            // Child → Report (1 : Many)
-            // --------------------------------------
-            modelBuilder.Entity<Report>()
-                .HasOne(r => r.Child)
-                .WithMany(c => c.Reports)
-                .HasForeignKey(r => r.ChildId);
-
-            // Optional: Composite Keys (لو تحبين)
-            // modelBuilder.Entity<StoryProgress>()
-            //     .HasKey(sp => new { sp.ChildId, sp.StoryId });
         }
+
+
     }
 }
+
+
+//protected override void OnModelCreating(ModelBuilder modelBuilder)
+//{
+//    base.OnModelCreating(modelBuilder);
+
+//    // --------------------------------------
+//    // Parent → Children  (1 : Many)
+//    // --------------------------------------
+//    modelBuilder.Entity<Parent>()
+//        .HasMany(p => p.Children)
+//        .WithOne(c => c.Parent)
+//        .HasForeignKey(c => c.ParentId)
+//        .OnDelete(DeleteBehavior.Cascade);
+
+
+//    // --------------------------------------
+//    // Child → StoryProgress (1 : Many)
+//    // --------------------------------------
+//    modelBuilder.Entity<StoryProgress>()
+//        .HasOne(sp => sp.Child)
+//        .WithMany(c => c.StoryProgress)
+//        .HasForeignKey(sp => sp.ChildId);
+
+//    modelBuilder.Entity<StoryProgress>()
+//        .HasOne(sp => sp.Story)
+//        .WithMany(s => s.StoryProgress)
+//        .HasForeignKey(sp => sp.StoryId);
+
+
+//    // --------------------------------------
+//    // Child → VideoActivity (1 : Many)
+//    // --------------------------------------
+//    modelBuilder.Entity<VideoActivity>()
+//        .HasOne(va => va.Child)
+//        .WithMany(c => c.VideoActivities)
+//        .HasForeignKey(va => va.ChildId);
+
+//    modelBuilder.Entity<VideoActivity>()
+//        .HasOne(va => va.Video)
+//        .WithMany(v => v.Activities)
+//        .HasForeignKey(va => va.VideoId);
+
+
+//    // --------------------------------------
+//    // Child → GameScore (1 : Many)
+//    // --------------------------------------
+//    modelBuilder.Entity<GameScore>()
+//        .HasOne(gs => gs.Child)
+//        .WithMany(c => c.GameScores)
+//        .HasForeignKey(gs => gs.ChildId);
+
+//    modelBuilder.Entity<GameScore>()
+//        .HasOne(gs => gs.Game)
+//        .WithMany(g => g.Scores)
+//        .HasForeignKey(gs => gs.GameId);
+
+
+//    // --------------------------------------
+//    // Child → TaskLog (1 : Many)
+//    // --------------------------------------
+//    modelBuilder.Entity<TaskLog>()
+//        .HasOne(tl => tl.Child)
+//        .WithMany(c => c.TaskLogs)
+//        .HasForeignKey(tl => tl.ChildId);
+
+//    modelBuilder.Entity<TaskLog>()
+//        .HasOne(tl => tl.Task)
+//        .WithMany(t => t.TaskLogs)
+//        .HasForeignKey(tl => tl.TaskId);
+
+
+//    // --------------------------------------
+//    // Child → Report (1 : Many)
+//    // --------------------------------------
+//    modelBuilder.Entity<Report>()
+//        .HasOne(r => r.Child)
+//        .WithMany(c => c.Reports)
+//        .HasForeignKey(r => r.ChildId);
+
+//    // Optional: Composite Keys (لو تحبين)
+//    // modelBuilder.Entity<StoryProgress>()
+//    //     .HasKey(sp => new { sp.ChildId, sp.StoryId });
+//}
 
 
 

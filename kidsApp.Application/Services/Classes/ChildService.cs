@@ -10,52 +10,53 @@ namespace kidsApp.Application.Services
 {
     public class ChildService : IChildService
     {
-        private readonly IChildRepository _repo;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public ChildService(IChildRepository repo, IMapper mapper)
+        public ChildService(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _repo = repo;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
-        // ------------------ Basic CRUD ------------------
-
         public async Task<IEnumerable<ChildReadDTO>> GetAllAsync()
         {
-            var data = await _repo.GetAllAsync();
-            return _mapper.Map<IEnumerable<ChildReadDTO>>(data);
+            var children = await _unitOfWork.Children.GetAllAsync();
+            return _mapper.Map<IEnumerable<ChildReadDTO>>(children);
         }
 
-        public async Task<ChildReadDTO> GetByIdAsync(int id)
+        public async Task<ChildReadDTO?> GetByIdAsync(int id)
         {
-            var entity = await _repo.GetByIdAsync(id);
-            return _mapper.Map<ChildReadDTO>(entity);
+            var child = await _unitOfWork.Children.GetByIdAsync(id);
+            return child == null ? null : _mapper.Map<ChildReadDTO>(child);
         }
 
         public async Task<ChildReadDTO> CreateAsync(ChildCreateDTO dto)
         {
             var entity = _mapper.Map<Child>(dto);
-            await _repo.AddAsync(entity);
+            await _unitOfWork.Children.AddAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<ChildReadDTO>(entity);
         }
 
         public async Task<bool> UpdateAsync(int id, ChildUpdateDto dto)
         {
-            var entity = await _repo.GetByIdAsync(id);
+            var entity = await _unitOfWork.Children.GetByIdAsync(id);
             if (entity == null) return false;
 
             _mapper.Map(dto, entity);
-            await _repo.UpdateAsync(entity);
+            _unitOfWork.Children.Update(entity);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var entity = await _repo.GetByIdAsync(id);
+            var entity = await _unitOfWork.Children.GetByIdAsync(id);
             if (entity == null) return false;
 
-            await _repo.DeleteAsync(entity);
+            _unitOfWork.Children.Delete(entity);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
@@ -64,7 +65,7 @@ namespace kidsApp.Application.Services
         // Weekly progress of the child
         public async Task<IEnumerable<ProgressReadDto>> GetWeeklyProgressAsync(int childId)
         {
-            var child = await _repo.GetByIdAsync(childId);
+            var child = await _unitOfWork.Children.GetByIdAsync(childId);
             if (child == null) return Enumerable.Empty<ProgressReadDto>();
 
             var lastWeek = DateTime.UtcNow.AddDays(-7);
@@ -90,7 +91,7 @@ namespace kidsApp.Application.Services
         // Total points earned by the child
         public async Task<int> GetTotalPointsAsync(int childId)
         {
-            var child = await _repo.GetByIdAsync(childId);
+            var child = await _unitOfWork.Children.GetByIdAsync(childId);
             if (child == null) return 0;
 
             var gamePoints = child.GameScores?.Sum(g => g.ScoreValue) ?? 0;
@@ -102,7 +103,7 @@ namespace kidsApp.Application.Services
         // Completion percentage across all activities
         public async Task<double> GetCompletionPercentageAsync(int childId)
         {
-            var child = await _repo.GetByIdAsync(childId);
+            var child = await _unitOfWork.Children.GetByIdAsync(childId);
             if (child == null) return 0;
 
             int totalActivities = (child.StoryProgress?.Count ?? 0)
@@ -121,7 +122,7 @@ namespace kidsApp.Application.Services
         // Weekly report for child (combining scores, progress, tasks)
         public async Task<ChildReportDTO> GetWeeklyReportAsync(int childId)
         {
-            var child = await _repo.GetByIdAsync(childId);
+            var child = await _unitOfWork.Children.GetByIdAsync(childId);
             if (child == null) return null;
 
             var lastWeek = DateTime.UtcNow.AddDays(-7);
@@ -146,7 +147,7 @@ namespace kidsApp.Application.Services
         // Summary of child activities
         public async Task<IEnumerable<ProgressReadDto>> GetChildActivitiesSummaryAsync(int childId)
         {
-            var child = await _repo.GetByIdAsync(childId);
+            var child = await _unitOfWork.Children.GetByIdAsync(childId);
             if (child == null) return Enumerable.Empty<ProgressReadDto>();
 
             var allActivities = child.StoryProgress.Select(sp => new ProgressReadDto
@@ -168,7 +169,7 @@ namespace kidsApp.Application.Services
         // Top scores of child
         public async Task<IEnumerable<ChildTopScoreDTO>> GetTopScoresAsync(int childId, int topCount = 5)
         {
-            var child = await _repo.GetByIdAsync(childId);
+            var child = await _unitOfWork.Children.GetByIdAsync(childId);
             if (child == null) return Enumerable.Empty<ChildTopScoreDTO>();
 
             var topScores = child.GameScores?
