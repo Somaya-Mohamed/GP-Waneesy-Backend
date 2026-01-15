@@ -1,74 +1,151 @@
 ﻿using kidsApp.Application.DTOs.TaskDTOs;
 using kidsApp.Application.DTOs.TaskLogDTOs;
-using kidsApp.Application.Services.Interfaces;
+using kidsApp.Application.ServiceManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kidsApp.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/v1/tasks")]
     [Authorize]
     public class TasksController : ControllerBase
     {
-        private readonly ITaskService _taskService;
+        private readonly IServiceManager _serviceManager;
 
-        public TasksController(ITaskService taskService)
+        public TasksController(IServiceManager serviceManager)
         {
-            _taskService = taskService;
+            _serviceManager = serviceManager;
         }
 
+        // GET: api/v1/tasks
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var tasks = await _taskService.GetAllAsync();
-            return Ok(new { Success = true, Data = tasks });
+            var tasks = await _serviceManager.TaskService.GetAllAsync();
+            return Ok(new
+            {
+                Success = true,
+                Message = "Tasks retrieved successfully",
+                Data = tasks
+            });
         }
 
-        [HttpGet("{id}")]
+        // GET: api/v1/tasks/5
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var task = await _taskService.GetByIdAsync(id);
-            if (task == null) return NotFound(new { Success = false, Message = "Task not found" });
-            return Ok(new { Success = true, Data = task });
+            var task = await _serviceManager.TaskService.GetByIdAsync(id);
+            if (task == null)
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = "Task not found"
+                });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Task retrieved successfully",
+                Data = task
+            });
         }
 
+        // POST: api/v1/tasks
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTaskDTO dto)
         {
-            var created = await _taskService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.TaskId }, new { Success = true, Data = created });
+            if (!ModelState.IsValid)
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Invalid data",
+                    Errors = ModelState
+                });
+
+            var created = await _serviceManager.TaskService.CreateAsync(dto);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = created.TaskId },
+                new
+                {
+                    Success = true,
+                    Message = "Task created successfully",
+                    Data = created
+                });
         }
 
-        [HttpPut("{id}")]
+        // PUT: api/v1/tasks/5
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateTaskDTO dto)
         {
-            var updated = await _taskService.UpdateAsync(id, dto);
-            if (!updated) return NotFound(new { Success = false, Message = "Task not found" });
-            return NoContent();
+            if (!ModelState.IsValid)
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Invalid data",
+                    Errors = ModelState
+                });
+
+            var updated = await _serviceManager.TaskService.UpdateAsync(id, dto);
+            if (!updated)
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = "Task not found"
+                });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Task updated successfully"
+            });
         }
 
-        [HttpDelete("{id}")]
+        // DELETE: api/v1/tasks/5
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _taskService.DeleteAsync(id);
-            if (!deleted) return NotFound(new { Success = false, Message = "Task not found" });
-            return NoContent();
+            var deleted = await _serviceManager.TaskService.DeleteAsync(id);
+            if (!deleted)
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = "Task not found"
+                });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Task deleted successfully"
+            });
         }
 
-        // Advanced Endpoints
-        [HttpGet("{id}/logs")]
+        // GET: api/v1/tasks/5/logs
+        [HttpGet("{id:int}/logs")]
         public async Task<IActionResult> GetTaskLogs(int id)
         {
-            var logs = await _taskService.GetTaskLogsByTaskIdAsync(id);
-            return Ok(new { Success = true, Data = logs });
+            var logs = await _serviceManager.TaskService.GetTaskLogsByTaskIdAsync(id);
+            return Ok(new
+            {
+                Success = true,
+                Message = "Task logs retrieved successfully",
+                Data = logs
+            });
         }
 
+        // GET: api/v1/tasks/difficulty/{level}
         [HttpGet("difficulty/{level}")]
         public async Task<IActionResult> GetByDifficulty(string level)
         {
-            var tasks = await _taskService.GetTasksByDifficultyAsync(level);
-            return Ok(new { Success = true, Data = tasks });
+            var tasks = await _serviceManager.TaskService.GetTasksByDifficultyAsync(level);
+            return Ok(new
+            {
+                Success = true,
+                Message = "Tasks retrieved successfully",
+                Data = tasks
+            });
         }
     }
 }

@@ -1,61 +1,97 @@
 ﻿using kidsApp.Application.DTOs.TaskLogDTOs;
-using kidsApp.Application.Services.Interfaces;
+using kidsApp.Application.ServiceManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kidsApp.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // optional, enable if using JWT auth
+    [Route("api/v1/task-logs")]
+    [Authorize]
     public class TaskLogsController : ControllerBase
     {
-        private readonly ITaskLogService _taskLogService;
+        private readonly IServiceManager _serviceManager;
 
-        public TaskLogsController(ITaskLogService taskLogService)
+        public TaskLogsController(IServiceManager serviceManager)
         {
-            _taskLogService = taskLogService;
+            _serviceManager = serviceManager;
         }
 
-        // GET: api/TaskLogs
+        // GET: api/v1/task-logs
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TaskLogDTO>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var logs = await _taskLogService.GetAllAsync();
-            return Ok(logs);
+            var logs = await _serviceManager.TaskLogService.GetAllAsync();
+            return Ok(new
+            {
+                Success = true,
+                Message = "Task logs retrieved successfully",
+                Data = logs
+            });
         }
 
-        // GET: api/TaskLogs/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<TaskLogDTO>> GetById(int id)
+        // GET: api/v1/task-logs/5
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
         {
-            var log = await _taskLogService.GetByIdAsync(id);
+            var log = await _serviceManager.TaskLogService.GetByIdAsync(id);
             if (log == null)
-                return NotFound();
-            return Ok(log);
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = "Task log not found"
+                });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Task log retrieved successfully",
+                Data = log
+            });
         }
 
-        // POST: api/TaskLogs
+        // POST: api/v1/task-logs
         [HttpPost]
-        public async Task<ActionResult<TaskLogDTO>> Create([FromBody] CreateTaskLogDTO dto)
+        public async Task<IActionResult> Create([FromBody] CreateTaskLogDTO dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Invalid data",
+                    Errors = ModelState
+                });
 
-            var createdLog = await _taskLogService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = createdLog.LogId }, createdLog);
+            var createdLog = await _serviceManager.TaskLogService.CreateAsync(dto);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = createdLog.LogId },
+                new
+                {
+                    Success = true,
+                    Message = "Task log created successfully",
+                    Data = createdLog
+                });
         }
 
-        // DELETE: api/TaskLogs/5
-        [HttpDelete("{id}")]
-        [Authorize]
+        // DELETE: api/v1/task-logs/5
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _taskLogService.DeleteAsync(id);
+            var deleted = await _serviceManager.TaskLogService.DeleteAsync(id);
             if (!deleted)
-                return NotFound();
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = "Task log not found"
+                });
 
-            return NoContent();
+            return Ok(new
+            {
+                Success = true,
+                Message = "Task log deleted successfully"
+            });
         }
     }
 }
