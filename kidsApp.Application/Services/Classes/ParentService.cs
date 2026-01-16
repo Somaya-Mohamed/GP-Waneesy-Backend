@@ -26,7 +26,9 @@ public class ParentService : IParentService
 
     public async Task<ParentReadDto> GetByIdAsync(int id)
     {
-        var entity = await _unitOfWork.Parents.GetByIdAsync(id);
+        //var entity = await _unitOfWork.Parents.GetByIdAsync(id);
+        var entity = await _unitOfWork.Parents.GetParentWithChildren(id);
+
         return _mapper.Map<ParentReadDto>(entity);
     }
 
@@ -34,12 +36,15 @@ public class ParentService : IParentService
     {
         var entity = _mapper.Map<Parent>(dto);
         await _unitOfWork.Parents.AddAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
         return _mapper.Map<ParentReadDto>(entity);
     }
 
     public async Task<bool> UpdateAsync(int id, UpdateParentDTO dto)
     {
-        var entity = await _unitOfWork.Parents.GetByIdAsync(id);
+        //var entity = await _unitOfWork.Parents.GetByIdAsync(id);
+        var entity = await _unitOfWork.Parents.GetParentWithChildren(id);
+
         if (entity == null) return false;
 
         _mapper.Map(dto, entity);
@@ -50,7 +55,8 @@ public class ParentService : IParentService
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var entity = await _unitOfWork.Parents.GetByIdAsync(id);
+        var entity = await _unitOfWork.Parents.GetParentWithChildren(id);
+        //var entity = await _unitOfWork.Parents.GetByIdAsync(id);
         if (entity == null) return false;
 
         _unitOfWork.Parents.Delete(entity);
@@ -61,7 +67,8 @@ public class ParentService : IParentService
     // Advanced
     public async Task<IEnumerable<ChildSummaryDTO>> GetChildrenSummaryAsync(int parentId)
     {
-        var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
+        var parent = await _unitOfWork.Parents.GetParentWithChildren(parentId);
+        //var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
         if (parent == null) return Enumerable.Empty<ChildSummaryDTO>();
 
         return parent.Children?.Select(c => new ChildSummaryDTO
@@ -74,7 +81,8 @@ public class ParentService : IParentService
 
     public async Task<IEnumerable<ProgressReadDto>> GetWeeklyChildReportsAsync(int parentId)
     {
-        var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
+        var parent = await _unitOfWork.Parents.GetParentWithChildren(parentId);
+        //var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
         if (parent == null) return Enumerable.Empty<ProgressReadDto>();
 
         var lastWeek = DateTime.UtcNow.AddDays(-7);
