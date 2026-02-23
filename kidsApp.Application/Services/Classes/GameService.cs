@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using kidsApp.Application.DTOs.GameDTOs;
+using kidsApp.Application.ServiceManager;
 using kidsApp.Application.Services.Interfaces;
 using kidsApp.Domain.Contracts;
 using kidsApp.Domain.Entities;
+using System.Runtime.InteropServices;
 
 public class GameService : IGameService
 {
@@ -33,6 +35,8 @@ public class GameService : IGameService
     {
         var entity = _mapper.Map<Game>(dto);
         await _unitOfWork.Games.AddAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
+
         return _mapper.Map<GameReadDto>(entity);
     }
 

@@ -1,13 +1,12 @@
 ﻿using kidsApp.Application.DTOs.GameDTOs;
 using kidsApp.Application.ServiceManager;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/games")]
-    [Authorize]
+    //[Authorize] // enable later if needed
     public class GamesController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -62,16 +61,16 @@ namespace kidsApp.API.Controllers
                     Errors = ModelState
                 });
 
-            var created = await _serviceManager.GameService.CreateAsync(dto);
+            var createdGame = await _serviceManager.GameService.CreateAsync(dto);
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { id = created.GameId },
+                new { id = createdGame.GameId },
                 new
                 {
                     Success = true,
                     Message = "Game created successfully",
-                    Data = created
+                    Data = createdGame
                 });
         }
 
@@ -120,51 +119,49 @@ namespace kidsApp.API.Controllers
                 Message = "Game deleted successfully"
             });
         }
-
-        // ================= Advanced Endpoints =================
-
-        // GET: api/v1/games/5/scores
-        [HttpGet("{id:int}/scores")]
-        public async Task<IActionResult> GetScores(int id)
-        {
-            var scores = await _serviceManager.GameScoreService.GetScoresByGameIdAsync(id);
-            return Ok(new
-            {
-                Success = true,
-                Message = "Game scores retrieved successfully",
-                Data = scores
-            });
-        }
-
-        // GET: api/v1/games/top-scores?topCount=5
-        [HttpGet("top-scores")]
-        public async Task<IActionResult> GetTopScores([FromQuery] int topCount = 5)
-        {
-            if (topCount <= 0) topCount = 5;
-            if (topCount > 50) topCount = 50;
-
-            var topScores = await _serviceManager.GameScoreService.GetTopScoresAsync(topCount);
-            return Ok(new
-            {
-                Success = true,
-                Message = "Top game scores retrieved successfully",
-                Data = topScores
-            });
-        }
-
-        // GET: api/v1/games/difficulty/easy
+        // GET: api/v1/games/difficulty/{level}?page=1&pageSize=10
         [HttpGet("difficulty/{level}")]
-        public async Task<IActionResult> GetByDifficulty(string level)
+        public async Task<IActionResult> GetByDifficulty(
+            string level,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var games = await _serviceManager.GameService.GetGamesByDifficultyAsync(level);
+            if (string.IsNullOrWhiteSpace(level))
+                return BadRequest(new { Success = false, Message = "Difficulty level is required." });
+
+            var allGames = await _serviceManager.GameService.GetGamesByDifficultyAsync(level);
+
+            // Case-insensitive filter
+            var filtered = allGames
+                .Where(g => g.Difficulty.Equals(level, StringComparison.OrdinalIgnoreCase));
+
+            // Pagination
+            var paged = filtered
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize);
+
             return Ok(new
             {
                 Success = true,
                 Message = "Games retrieved successfully",
-                Data = games
+                Page = page,
+                PageSize = pageSize,
+                Total = filtered.Count(),
+                Data = paged
             });
         }
+
+        //// GET: api/v1/games/difficulty/{level}
+        //[HttpGet("difficulty/{level}")]
+        //public async Task<IActionResult> GetByDifficulty(string level)
+        //{
+        //    var games = await _serviceManager.GameService.GetGamesByDifficultyAsync(level);
+        //    return Ok(new
+        //    {
+        //        Success = true,
+        //        Message = "Games retrieved successfully",
+        //        Data = games
+        //    });
+        //}
     }
 }
-
-

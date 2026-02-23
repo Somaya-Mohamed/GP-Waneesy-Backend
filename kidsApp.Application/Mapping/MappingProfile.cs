@@ -56,18 +56,38 @@ namespace kidsApp.Application.Mapping
                 .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.ScoreValue))
                 .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date));
             // ====================== Parent ======================
-            CreateMap<Parent, ParentReadDto>();
-            CreateMap<ParentCreateDto, Parent>();
+           /// Mapping من Parent Entity → ParentReadDto
+            CreateMap<Parent, ParentReadDto>()
+                .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.Id)) // Id → ParentId
+                .ForMember(dest => dest.Children, opt => opt.Ignore()); // لو عايز تضيف mapping للأطفال لاحقاً
+
+            // Mapping من ParentCreateDto → Parent Entity
+            CreateMap<ParentCreateDto, Parent>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore()); // Id هيتحدد تلقائياً من قاعدة البيانات
+
+            // Mapping من UpdateParentDTO → Parent Entity
             CreateMap<UpdateParentDTO, Parent>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+            // Mapping من Parent → ParentLoginDTO
             CreateMap<Parent, ParentLoginDTO>();
 
-            // ====================== Game ======================
-            CreateMap<Game, GameReadDto>();
-            CreateMap<GameCreateDTO, Game>();
-            CreateMap<GameUpdateDTO, Game>()
-                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            //CreateMap<Parent, ParentReadDto>();
+            //CreateMap<ParentCreateDto, Parent>();
+            //CreateMap<UpdateParentDTO, Parent>()
+            //    .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            //CreateMap<Parent, ParentLoginDTO>();
 
+            // ====================== Game ======================
+            CreateMap<GameCreateDTO, Game>()
+     .ForMember(dest => dest.DifficultyLevel, opt => opt.MapFrom(src => src.Difficulty));
+
+            CreateMap<GameUpdateDTO, Game>()
+                .ForMember(dest => dest.DifficultyLevel, opt => opt.MapFrom(src => src.Difficulty));
+
+            CreateMap<Game, GameReadDto>()
+                .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.DifficultyLevel))
+                .ForMember(dest => dest.GameId, opt => opt.MapFrom(src => src.Id)); // لو حبيت تحافظ على GameId في DTO
             // ====================== GameScore ======================
             CreateMap<GameScore, GameScoreDTO>();
             CreateMap<GameScoreCreateDTO, GameScore>();
