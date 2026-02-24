@@ -25,99 +25,83 @@ namespace kidsApp.API.Controllers
             return Ok(new
             {
                 Success = true,
-                Message = "Game scores retrieved successfully",
                 Data = scores
             });
         }
 
-        // GET: api/v1/game-scores/5
+        // GET: api/v1/game-scores/{id}
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var score = await _serviceManager.GameScoreService.GetByIdAsync(id);
             if (score == null)
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = "Game score not found"
-                });
+                return NotFound(new { Success = false, Message = "Game score not found" });
 
-            return Ok(new
-            {
-                Success = true,
-                Message = "Game score retrieved successfully",
-                Data = score
-            });
+            return Ok(new { Success = true, Data = score });
         }
 
         // POST: api/v1/game-scores
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] GameScoreCreateDTO dto)
+        public async Task<IActionResult> Create(GameScoreCreateDTO dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Invalid data",
-                    Errors = ModelState
-                });
+                return BadRequest(ModelState);
 
-            var createdScore = await _serviceManager.GameScoreService.CreateAsync(dto);
-
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = createdScore.ScoreId },
-                new
-                {
-                    Success = true,
-                    Message = "Game score created successfully",
-                    Data = createdScore
-                });
+            var result = await _serviceManager.GameScoreService.CreateAsync(dto);
+            return Ok(new { Success = true, Data = result });
         }
 
-        // PUT: api/v1/game-scores/5
+        // PUT: api/v1/game-scores/{id}
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] GameScoreUpdateDTO dto)
+        public async Task<IActionResult> Update(int id, GameScoreUpdateDTO dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Invalid data",
-                    Errors = ModelState
-                });
-
             var updated = await _serviceManager.GameScoreService.UpdateAsync(id, dto);
             if (!updated)
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = "Game score not found"
-                });
+                return NotFound(new { Success = false });
 
-            return Ok(new
-            {
-                Success = true,
-                Message = "Game score updated successfully"
-            });
+            return Ok(new { Success = true });
         }
 
-        // DELETE: api/v1/game-scores/5
+        // DELETE: api/v1/game-scores/{id}
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.GameScoreService.DeleteAsync(id);
             if (!deleted)
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = "Game score not found"
-                });
+                return NotFound(new { Success = false });
+
+            return Ok(new { Success = true });
+        }
+
+        // ============================
+        // ADVANCED (Child-style simple)
+        // ============================
+
+        // GET: api/v1/game-scores/game/{gameId}
+        [HttpGet("game/{gameId:int}")]
+        public async Task<IActionResult> GetByGameId(int gameId)
+        {
+            var scores = await _serviceManager.GameScoreService
+                .GetScoresByGameIdAsync(gameId);
 
             return Ok(new
             {
                 Success = true,
-                Message = "Game score deleted successfully"
+                Data = scores
+            });
+        }
+
+        // GET: api/v1/game-scores/top/{count}
+        [HttpGet("top/{count:int}")]
+        public async Task<IActionResult> GetTopScores(int count)
+        {
+            var scores = await _serviceManager.GameScoreService
+                .GetTopScoresAsync(count);
+
+            return Ok(new
+            {
+                Success = true,
+                Data = scores
             });
         }
     }

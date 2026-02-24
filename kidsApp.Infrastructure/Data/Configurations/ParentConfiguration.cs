@@ -14,7 +14,7 @@ namespace kidsApp.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Parent> builder)
         {
-            builder.Property(p => p.Name)
+            builder.Property(p => p.FullName)
                    .IsRequired()
                    .HasMaxLength(100);
 

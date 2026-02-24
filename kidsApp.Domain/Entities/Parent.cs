@@ -10,13 +10,13 @@ namespace kidsApp.Domain.Entities
     {
         public int Id { get; set; }
         //public int ParentId { get; set; }
-        public string Name { get; set; }
+        public string FullName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public string Country { get; set; }
-        public string Role { get; set; }
+        public string? Country { get; set; }
+        public string? Role { get; set; }
 
         // Navigation
-        public ICollection<Child> Children { get; set; }
+        public ICollection<Child> Children { get; set; } = new List<Child>();
     }
 }
