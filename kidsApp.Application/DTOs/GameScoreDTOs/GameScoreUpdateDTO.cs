@@ -8,8 +8,8 @@ namespace kidsApp.Application.DTOs.GameScoreDTOs
 {
     public class GameScoreUpdateDTO
     {
-        public int ScoreValue { get; set; }
-        public int Attempts { get; set; }
+        public int? ScoreValue { get; set; }
+        public int? Attempts { get; set; }
         // Add other properties as needed based on the GameScore entity
     }
 }
