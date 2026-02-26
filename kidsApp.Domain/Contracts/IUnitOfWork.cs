@@ -11,13 +11,15 @@ namespace kidsApp.Domain.Contracts
         IParentRepository Parents { get; }
 
         IStoryProgressRepository StoryProgress { get; }
+        IVideoRepository Videos { get; }
+        IVideoActivityRepository VideoActivitiesRepo { get; }
         IGenericRepository<Story> Stories { get; } // Only for Story
-        IGenericRepository<Video> Videos { get; } // Videos
+        //IGenericRepository<Video> Videos { get; } // Videos
         IGenericRepository<Game> Games { get; } // Games
         ITaskRepository Tasks { get; }
         //IGenericRepository<Tasks> Tasks { get; } // Tasks
         //IGenericRepository<StoryProgress> StoryProgress { get; } // Story progress
-        IGenericRepository<VideoActivity> VideoActivities { get; } // Video activity
+        //IGenericRepository<VideoActivity> VideoActivities { get; } // Video activity
         IGameScoreRepository GameScores { get; } // Game scores
         IGenericRepository<TaskLog> TaskLogs { get; } // Task logs
         IGenericRepository<Report> Reports { get; } // Reports

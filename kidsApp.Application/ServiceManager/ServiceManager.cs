@@ -82,6 +82,8 @@ namespace kidsApp.Application.ServiceManager
             ParentService = new ParentService(unitOfWork, mapper);
             GameService = new GameService(unitOfWork, mapper);
             GameScoreService = new GameScoreService(unitOfWork, mapper);
+            VideoService = new VideoService(unitOfWork, mapper);
+
             StoryService = new StoryService(unitOfWork, mapper);
             StoryProgressService ??= new StoryProgressService(unitOfWork, mapper);
             TaskService = new TaskService(unitOfWork, mapper);
@@ -90,7 +92,7 @@ namespace kidsApp.Application.ServiceManager
             //TaskService = new TaskService(unitOfWork, mapper);
             //TaskLogService = new TaskLogService(unitOfWork, mapper);
             //VideoService = new VideoService(unitOfWork, mapper);
-            //VideoActivityService = new VideoActivityService(unitOfWork, mapper);
+            VideoActivityService = new VideoActivityService(unitOfWork, mapper);
             //AdminService = new AdminService(unitOfWork, mapper);
         }
     }

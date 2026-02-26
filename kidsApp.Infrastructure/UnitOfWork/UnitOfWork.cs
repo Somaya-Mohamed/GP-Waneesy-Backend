@@ -17,8 +17,9 @@ namespace kidsApp.Infrastructure.UnitOfWork
         private GameScoreRepository? _GameScoreRepository;
         private StoryProgressRepository? _storyProgressRepository;
         private TaskRepository? _taskRepository;
+        private VideoRepository? _videoRepository;
+        private VideoActivityRepository? _videoActivityRepository;
 
-        
 
 
         public UnitOfWork(KidsAppDbContext context)
@@ -32,8 +33,11 @@ namespace kidsApp.Infrastructure.UnitOfWork
            => _storyProgressRepository ??= new StoryProgressRepository(_context);
         public ITaskRepository Tasks
             => _taskRepository ??= new TaskRepository(_context);
+        public IVideoActivityRepository VideoActivitiesRepo
+            => _videoActivityRepository ??= new VideoActivityRepository(_context);
+
         public IGenericRepository<Story> Stories => new GenericRepository<Story>(_context);
-        public IGenericRepository<Video> Videos => new GenericRepository<Video>(_context);
+        //public IGenericRepository<Video> Videos => new GenericRepository<Video>(_context);
         public IGenericRepository<Game> Games => new GenericRepository<Game>(_context);
         //public IGenericRepository<Tasks> Tasks => new GenericRepository<Tasks>(_context);
         //public IGenericRepository<StoryProgress> StoryProgress => new GenericRepository<StoryProgress>(_context);
@@ -43,6 +47,8 @@ namespace kidsApp.Infrastructure.UnitOfWork
 
         // ✅ Fixed: implement GameScores using the specialized repository
         public IGameScoreRepository GameScores => _GameScoreRepository ??= new GameScoreRepository(_context);
+
+        public IVideoRepository Videos => _videoRepository ??= new VideoRepository(_context);
 
         public async Task<int> SaveChangesAsync(CancellationToken ct = default)
             => await _context.SaveChangesAsync(ct);
