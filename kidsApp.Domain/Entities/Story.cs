@@ -15,6 +15,7 @@ namespace kidsApp.Domain.Entities
         public string Category { get; set; }
         public string? AudioUrl { get; set; }
         public string? ImgUrl { get; set; }
+                 //publishdate//
 
         // Navigation
         public ICollection<StoryProgress> StoryProgress { get; set; }

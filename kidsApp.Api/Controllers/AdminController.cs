@@ -31,7 +31,7 @@ namespace kidsApp.API.Controllers
         }
 
         // GET: api/v1/admin/users/5
-        [HttpGet("users/{id:int}")]
+        [HttpGet("users/{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
             var user = await _serviceManager.AdminService.GetUserByIdAsync(id);
@@ -64,7 +64,7 @@ namespace kidsApp.API.Controllers
         }
 
         // PUT: api/v1/admin/users/5
-        [HttpPut("users/{id:int}")]
+        [HttpPut("users/{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] AdminUpdateUserDTO dto)
         {
             if (!ModelState.IsValid)
@@ -78,7 +78,7 @@ namespace kidsApp.API.Controllers
         }
 
         // DELETE: api/v1/admin/users/5
-        [HttpDelete("users/{id:int}")]
+        [HttpDelete("users/{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var deleted = await _serviceManager.AdminService.DeleteUserAsync(id);
