@@ -7,7 +7,7 @@ namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/game-scores")]
-    [Authorize]
+    //[Authorize]
     public class GameScoresController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;

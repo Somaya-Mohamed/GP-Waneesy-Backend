@@ -35,6 +35,8 @@ public class GameService : IGameService
     {
         var entity = _mapper.Map<Game>(dto);
         await _unitOfWork.Games.AddAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
+
         return _mapper.Map<GameReadDto>(entity);
     }
 

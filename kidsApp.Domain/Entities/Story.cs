@@ -13,10 +13,11 @@ namespace kidsApp.Domain.Entities
         public string Title { get; set; }
         public string Content { get; set; }
         public string Category { get; set; }
-        public string AudioUrl { get; set; }
-        public string ImgUrl { get; set; }
+        public string? AudioUrl { get; set; }
+        public string? ImgUrl { get; set; }
 
         // Navigation
         public ICollection<StoryProgress> StoryProgress { get; set; }
+      
     }
 }

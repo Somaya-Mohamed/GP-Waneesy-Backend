@@ -8,7 +8,7 @@ namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/tasks")]
-    [Authorize]
+    //[Authorize]
     public class TasksController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;

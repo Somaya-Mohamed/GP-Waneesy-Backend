@@ -1,26 +1,29 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using kidsApp.Domain.Entities;
 
 namespace kidsApp.Domain.Contracts
 {
-
     public interface IUnitOfWork : IDisposable
     {
         IChildRepository Children { get; }
         IParentRepository Parents { get; }
 
-        IGenericRepository<Story> Stories { get; }
-        IGenericRepository<Video> Videos { get; }
-        IGenericRepository<Game> Games { get; }
-        IGenericRepository<Tasks> Tasks { get; }
-        IGenericRepository<StoryProgress> StoryProgress { get; }
-        IGenericRepository<VideoActivity> VideoActivities { get; }
-        IGenericRepository<GameScore> GameScores { get; }
-        IGenericRepository<TaskLog> TaskLogs { get; }
-        IGenericRepository<Report> Reports { get; }
+        IStoryProgressRepository StoryProgress { get; }
+        IVideoRepository Videos { get; }
+        IVideoActivityRepository VideoActivitiesRepo { get; }
+        IGenericRepository<Story> Stories { get; } // Only for Story
+        //IGenericRepository<Video> Videos { get; } // Videos
+        IGenericRepository<Game> Games { get; } // Games
+        ITaskRepository Tasks { get; }
+        //IGenericRepository<Tasks> Tasks { get; } // Tasks
+        //IGenericRepository<StoryProgress> StoryProgress { get; } // Story progress
+        //IGenericRepository<VideoActivity> VideoActivities { get; } // Video activity
+        IGameScoreRepository GameScores { get; } // Game scores
+        IGenericRepository<TaskLog> TaskLogs { get; } // Task logs
+        IGenericRepository<Report> Reports { get; } // Reports
 
         Task<int> SaveChangesAsync(CancellationToken ct = default);
     }
 }
-
-

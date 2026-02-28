@@ -79,51 +79,93 @@ namespace kidsApp.Application.Mapping
             //CreateMap<Parent, ParentLoginDTO>();
 
             // ====================== Game ======================
-            CreateMap<Game, GameReadDto>();
-            CreateMap<GameCreateDTO, Game>();
+            CreateMap<GameCreateDTO, Game>()
+     .ForMember(dest => dest.DifficultyLevel, opt => opt.MapFrom(src => src.Difficulty));
+
             CreateMap<GameUpdateDTO, Game>()
-                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+                .ForMember(dest => dest.DifficultyLevel, opt => opt.MapFrom(src => src.Difficulty));
 
+            CreateMap<Game, GameReadDto>()
+                .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.DifficultyLevel));
             // ====================== GameScore ======================
-            CreateMap<GameScore, GameScoreDTO>();
-            CreateMap<GameScoreCreateDTO, GameScore>();
-            CreateMap<GameScoreUpdateDTO, GameScore>()
-                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+           CreateMap<GameScore, GameScoreDTO>()
+               .ForMember(d => d.ScoreId, o => o.MapFrom(s => s.Id))
+               .ForMember(d => d.Score, o => o.MapFrom(s => s.ScoreValue))
+               .ForMember(d => d.ChildName, o => o.MapFrom(s => s.Child.Name))
+               .ForMember(d => d.GameTitle, o => o.MapFrom(s => s.Game.Title));
 
-            // ====================== Story ======================
-            CreateMap<Story, StoryDTO>();
-            CreateMap<CreateStoryDTO, Story>();
+            // ====================== GameScore Create ======================
+            CreateMap<GameScoreCreateDTO, GameScore>()
+                .ForMember(d => d.ScoreValue, o => o.MapFrom(s => s.Score))
+                .ForMember(d => d.GameId, o => o.MapFrom(s => s.GameId))
+                .ForMember(d => d.ChildId, o => o.MapFrom(s => s.ChildId))
+                .ForMember(d => d.Id, o => o.Ignore())
+                .ForMember(d => d.Game, o => o.Ignore())
+                .ForMember(d => d.Child, o => o.Ignore())
+                .ForMember(d => d.Date, o => o.Ignore());
+            CreateMap<CreateStoryDTO, Story>()
+                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.StoryText))
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Difficulty))
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
             CreateMap<UpdateStoryDTO, Story>()
-                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.StoryText))
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Difficulty));
 
+            CreateMap<Story, StoryDTO>()
+                .ForMember(dest => dest.StoryId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.StoryText, opt => opt.MapFrom(src => src.Content))
+                .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.Category));
             // ====================== StoryProgress ======================
             CreateMap<StoryProgress, StoryProgressDTO>();
             CreateMap<CreateStoryProgressDTO, StoryProgress>();
             CreateMap<ProgressCreateDto, StoryProgress>();
 
             // ====================== Task ======================
-            CreateMap<Tasks, TaskDTO>();
-            CreateMap<CreateTaskDTO, Tasks>();
-            CreateMap<UpdateTaskDTO, Tasks>()
-                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            // Mapping for creating task
+            CreateMap<CreateTaskDTO, Tasks>()
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Difficulty))
+                .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.Difficulty));
 
-            // ====================== TaskLog ======================
-            CreateMap<TaskLog, TaskLogDTO>();
-            CreateMap<CreateTaskLogDTO, TaskLog>();
+            // Mapping for returning DTO
+            CreateMap<TaskLog, TaskLogDTO>()
+     .ForMember(dest => dest.LogId, opt => opt.MapFrom(src => src.Id))
+     .ForMember(dest => dest.ChildName, opt => opt.MapFrom(src => src.Child.Name))
+     .ForMember(dest => dest.TaskTitle, opt => opt.MapFrom(src => src.Task.Title));
+
+            CreateMap<CreateTaskLogDTO, TaskLog>()
+                .ForMember(dest => dest.Status, opt => opt.Ignore())
+                .ForMember(dest => dest.DateCompleted, opt => opt.Ignore());
+
+
+
 
             // ====================== Video ======================
-            CreateMap<Video, VideoDTO>();
-            CreateMap<CreateVideoDTO, Video>();
+            CreateMap<CreateVideoDTO, Video>()
+                .ForMember(dest => dest.VideoUrl, opt => opt.MapFrom(src => src.Url))
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Difficulty))
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
             CreateMap<UpdateVideoDTO, Video>()
+                .ForMember(dest => dest.VideoUrl, opt => opt.MapFrom(src => src.Url))
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Difficulty))
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<Video, VideoDTO>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.Category));
 
             // ====================== VideoActivity ======================
-            CreateMap<VideoActivity, VideoActivityDTO>();
-            CreateMap<CreateVideoActivityDTO, VideoActivity>();
-            CreateMap<ActivityCreateDto, VideoActivity>();
-            CreateMap<VideoActivityDTO, VideoActivity>()
-                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<VideoActivity, VideoActivityDTO>()
+                .ForMember(dest => dest.ActivityId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.ChildName, opt => opt.MapFrom(src => src.Child.Name))
+                .ForMember(dest => dest.VideoTitle, opt => opt.MapFrom(src => src.Video.Title))
+                .ForMember(dest => dest.WatchPercent, opt => opt.MapFrom(src => src.WatchedPercent))
+                .ForMember(dest => dest.LastUpdated, opt => opt.MapFrom(src => DateTime.UtcNow));
 
+            CreateMap<CreateVideoActivityDTO, VideoActivity>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(_ => "In Progress"));
 
 
         }

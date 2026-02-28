@@ -8,7 +8,7 @@ namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/stories")]
-    [Authorize]
+    //[Authorize]
     public class StoriesController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;

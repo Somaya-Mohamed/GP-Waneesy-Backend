@@ -119,18 +119,49 @@ namespace kidsApp.API.Controllers
                 Message = "Game deleted successfully"
             });
         }
-
-        // GET: api/v1/games/difficulty/{level}
+        // GET: api/v1/games/difficulty/{level}?page=1&pageSize=10
         [HttpGet("difficulty/{level}")]
-        public async Task<IActionResult> GetByDifficulty(string level)
+        public async Task<IActionResult> GetByDifficulty(
+            string level,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var games = await _serviceManager.GameService.GetGamesByDifficultyAsync(level);
+            if (string.IsNullOrWhiteSpace(level))
+                return BadRequest(new { Success = false, Message = "Difficulty level is required." });
+
+            var allGames = await _serviceManager.GameService.GetGamesByDifficultyAsync(level);
+
+            // Case-insensitive filter
+            var filtered = allGames
+                .Where(g => g.Difficulty.Equals(level, StringComparison.OrdinalIgnoreCase));
+
+            // Pagination
+            var paged = filtered
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize);
+
             return Ok(new
             {
                 Success = true,
                 Message = "Games retrieved successfully",
-                Data = games
+                Page = page,
+                PageSize = pageSize,
+                Total = filtered.Count(),
+                Data = paged
             });
         }
+
+        //// GET: api/v1/games/difficulty/{level}
+        //[HttpGet("difficulty/{level}")]
+        //public async Task<IActionResult> GetByDifficulty(string level)
+        //{
+        //    var games = await _serviceManager.GameService.GetGamesByDifficultyAsync(level);
+        //    return Ok(new
+        //    {
+        //        Success = true,
+        //        Message = "Games retrieved successfully",
+        //        Data = games
+        //    });
+        //}
     }
 }
