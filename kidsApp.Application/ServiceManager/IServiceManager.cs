@@ -9,6 +9,7 @@ namespace kidsApp.Application.ServiceManager
         IGameService GameService { get; }
         IGameScoreService GameScoreService { get; }
         IStoryService StoryService { get; }
+        
         IStoryProgressService StoryProgressService { get; }
         ITaskService TaskService { get; }
         ITaskLogService TaskLogService { get; }

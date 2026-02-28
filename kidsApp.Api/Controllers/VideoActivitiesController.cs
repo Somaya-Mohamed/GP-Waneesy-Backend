@@ -7,7 +7,7 @@ namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/video-activities")]
-    [Authorize]
+    //[Authorize]
     public class VideoActivitiesController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;

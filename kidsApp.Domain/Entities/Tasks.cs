@@ -12,9 +12,11 @@ namespace kidsApp.Domain.Entities
         //public int TaskId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public string Category { get; set; }
-        public string Duration { get; set; }
-        public string VideoUrl { get; set; }
+        public string? Difficulty { get; set; }   // ✅ أضفناها
+
+        public string? Category { get; set; }
+        public string Duration { get; set; } = "10";
+        public string? VideoUrl { get; set; }
 
         // Navigation
         public ICollection<TaskLog> TaskLogs { get; set; }

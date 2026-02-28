@@ -8,7 +8,7 @@ namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/videos")]
-    [Authorize]
+    //[Authorize]
     public class VideosController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -67,7 +67,7 @@ namespace kidsApp.API.Controllers
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { id = created.VideoId },
+                new { id = created.Id },
                 new
                 {
                     Success = true,

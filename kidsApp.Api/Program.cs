@@ -2,7 +2,7 @@ using kidsApp.Application.Mapping;
 using kidsApp.Application.ServiceManager;
 using kidsApp.Domain.Contracts;
 using kidsApp.Infrastructure.Data;
-using kidsApp.Infrastructure.unitOfWork;
+using kidsApp.Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection.Metadata;
@@ -23,6 +23,9 @@ namespace kidsApp.Api
             // ====================== AutoMapper ======================
             builder.Services.AddAutoMapper(cong => cong.AddProfile(new MappingProfile()), typeof(MappingProfile).Assembly);
 
+            //builder.Services.AddAutoMapper(cfg => cfg.AddProfile<GameScoreProfile>());
+            //builder.Services.AddAutoMapper(typeof(GameScoreProfile));
+            //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             // ====================== Repositories & UnitOfWork ======================
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -78,33 +81,5 @@ namespace kidsApp.Api
 
 
 
-//var builder = WebApplication.CreateBuilder(args);
-//builder.Services.AddDbContext<KidsAppDbContext>(options =>
-//options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
-//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-//// Add services to the container.
-
-//builder.Services.AddControllers();
-//// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
-
-//var app = builder.Build();
-
-//// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-//app.UseHttpsRedirection();
-
-//app.UseAuthorization();
-
-
-//app.MapControllers();
-
-//app.Run();
 
