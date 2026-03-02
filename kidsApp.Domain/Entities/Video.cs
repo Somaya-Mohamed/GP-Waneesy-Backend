@@ -13,6 +13,9 @@ namespace kidsApp.Domain.Entities
         public string Title { get; set; }
         public string Description { get; set; }
         public string Category { get; set; }
+        /// <summary>
+        /// //duration will deleted
+        /// </summary>
         public string Duration { get; set; }
         public string VideoUrl { get; set; }
 

@@ -1,5 +1,6 @@
 ﻿using kidsApp.Domain.Entities;
 using kidsApp.Infrastructure.Data.Configurations;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Reflection.Emit;
@@ -36,6 +37,14 @@ namespace kidsApp.Infrastructure.Data
         public DbSet<TaskLog> TaskLogs { get; set; }
 
         public DbSet<Report> Reports { get; set; }
+        // ===== Identity Tables =====
+        public DbSet<ApplicationUser> Users { get; set; }
+        public DbSet<IdentityRole> Roles { get; set; }
+        public DbSet<IdentityUserRole<string>> UserRoles { get; set; }
+        public DbSet<IdentityUserClaim<string>> UserClaims { get; set; }
+        public DbSet<IdentityUserLogin<string>> UserLogins { get; set; }
+        public DbSet<IdentityRoleClaim<string>> RoleClaims { get; set; }
+        public DbSet<IdentityUserToken<string>> UserTokens { get; set; }
 
 
         // ======================
@@ -43,10 +52,58 @@ namespace kidsApp.Infrastructure.Data
         // ======================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            // ===== Identity Tables =====
+
+            modelBuilder.Entity<ApplicationUser>(entity =>
+            {
+                entity.ToTable("AspNetUsers");
+                entity.HasKey(u => u.Id);
+            });
+
+            modelBuilder.Entity<IdentityRole>(entity =>
+            {
+                entity.ToTable("AspNetRoles");
+                entity.HasKey(r => r.Id);
+            });
+
+            modelBuilder.Entity<IdentityUserRole<string>>(entity =>
+            {
+                entity.ToTable("AspNetUserRoles");
+                entity.HasKey(ur => new { ur.UserId, ur.RoleId });
+            });
+
+            modelBuilder.Entity<IdentityUserClaim<string>>(entity =>
+            {
+                entity.ToTable("AspNetUserClaims");
+                entity.HasKey(uc => uc.Id);
+            });
+
+            modelBuilder.Entity<IdentityUserLogin<string>>(entity =>
+            {
+                entity.ToTable("AspNetUserLogins");
+                entity.HasKey(ul => new { ul.LoginProvider, ul.ProviderKey });
+            });
+
+            modelBuilder.Entity<IdentityRoleClaim<string>>(entity =>
+            {
+                entity.ToTable("AspNetRoleClaims");
+                entity.HasKey(rc => rc.Id);
+            });
+
+            modelBuilder.Entity<IdentityUserToken<string>>(entity =>
+            {
+                entity.ToTable("AspNetUserTokens");
+                entity.HasKey(ut => new { ut.UserId, ut.LoginProvider, ut.Name });
+            });
+
+            // ===== Your Configurations =====
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ChildConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ParentConfiguration).Assembly);
+        
 
-            base.OnModelCreating(modelBuilder);
+
+           
         }
 
 
@@ -54,88 +111,10 @@ namespace kidsApp.Infrastructure.Data
 }
 
 
-//protected override void OnModelCreating(ModelBuilder modelBuilder)
-//{
-//    base.OnModelCreating(modelBuilder);
-
-//    // --------------------------------------
-//    // Parent → Children  (1 : Many)
-//    // --------------------------------------
-//    modelBuilder.Entity<Parent>()
-//        .HasMany(p => p.Children)
-//        .WithOne(c => c.Parent)
-//        .HasForeignKey(c => c.ParentId)
-//        .OnDelete(DeleteBehavior.Cascade);
 
 
-//    // --------------------------------------
-//    // Child → StoryProgress (1 : Many)
-//    // --------------------------------------
-//    modelBuilder.Entity<StoryProgress>()
-//        .HasOne(sp => sp.Child)
-//        .WithMany(c => c.StoryProgress)
-//        .HasForeignKey(sp => sp.ChildId);
-
-//    modelBuilder.Entity<StoryProgress>()
-//        .HasOne(sp => sp.Story)
-//        .WithMany(s => s.StoryProgress)
-//        .HasForeignKey(sp => sp.StoryId);
 
 
-//    // --------------------------------------
-//    // Child → VideoActivity (1 : Many)
-//    // --------------------------------------
-//    modelBuilder.Entity<VideoActivity>()
-//        .HasOne(va => va.Child)
-//        .WithMany(c => c.VideoActivities)
-//        .HasForeignKey(va => va.ChildId);
-
-//    modelBuilder.Entity<VideoActivity>()
-//        .HasOne(va => va.Video)
-//        .WithMany(v => v.Activities)
-//        .HasForeignKey(va => va.VideoId);
-
-
-//    // --------------------------------------
-//    // Child → GameScore (1 : Many)
-//    // --------------------------------------
-//    modelBuilder.Entity<GameScore>()
-//        .HasOne(gs => gs.Child)
-//        .WithMany(c => c.GameScores)
-//        .HasForeignKey(gs => gs.ChildId);
-
-//    modelBuilder.Entity<GameScore>()
-//        .HasOne(gs => gs.Game)
-//        .WithMany(g => g.Scores)
-//        .HasForeignKey(gs => gs.GameId);
-
-
-//    // --------------------------------------
-//    // Child → TaskLog (1 : Many)
-//    // --------------------------------------
-//    modelBuilder.Entity<TaskLog>()
-//        .HasOne(tl => tl.Child)
-//        .WithMany(c => c.TaskLogs)
-//        .HasForeignKey(tl => tl.ChildId);
-
-//    modelBuilder.Entity<TaskLog>()
-//        .HasOne(tl => tl.Task)
-//        .WithMany(t => t.TaskLogs)
-//        .HasForeignKey(tl => tl.TaskId);
-
-
-//    // --------------------------------------
-//    // Child → Report (1 : Many)
-//    // --------------------------------------
-//    modelBuilder.Entity<Report>()
-//        .HasOne(r => r.Child)
-//        .WithMany(c => c.Reports)
-//        .HasForeignKey(r => r.ChildId);
-
-//    // Optional: Composite Keys (لو تحبين)
-//    // modelBuilder.Entity<StoryProgress>()
-//    //     .HasKey(sp => new { sp.ChildId, sp.StoryId });
-//}
 
 
 

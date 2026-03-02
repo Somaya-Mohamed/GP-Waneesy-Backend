@@ -13,6 +13,7 @@ using kidsApp.Application.DTOs.TaskLogDTOs;
 using kidsApp.Application.DTOs.VideoActivityDTOs;
 using kidsApp.Application.DTOs.VideoDTOs;
 using kidsApp.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -166,6 +167,13 @@ namespace kidsApp.Application.Mapping
             CreateMap<CreateVideoActivityDTO, VideoActivity>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(_ => "In Progress"));
+            // ===== Admin User =====
+            CreateMap<ApplicationUser, AdminUserDTO>();
+            CreateMap<AdminCreateUserDTO, ApplicationUser>();
+            CreateMap<AdminUpdateUserDTO, ApplicationUser>();
+
+            // ===== Admin Role =====
+            CreateMap<IdentityRole, AdminRoleDTO>();
 
 
         }
