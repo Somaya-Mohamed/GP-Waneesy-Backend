@@ -9,7 +9,7 @@ namespace kidsApp.Domain.Contracts
 {
     public interface IVideoRepository : IGenericRepository<Video>
     {
-        Task<IEnumerable<Video>> GetByDifficultyAsync(string level);
+        Task<IEnumerable<Video>> GetByCategoryAsync(string level);
         Task<IEnumerable<Video>> GetTopWatchedAsync(int topCount);
     }
 }

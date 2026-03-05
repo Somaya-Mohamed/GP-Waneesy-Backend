@@ -10,8 +10,10 @@ namespace kidsApp.Application.DTOs.StoryDTOs
     {
         public string Title { get; set; }
         public string StoryText { get; set; }
-        public string Difficulty { get; set; }
+        public string Category { get; set; }
         public object? AuthorId { get; internal set; }
+        public string? Url { get; set; }
+
     }
 
 }

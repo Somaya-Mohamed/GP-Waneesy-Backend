@@ -16,7 +16,7 @@ namespace kidsApp.Domain.Entities
         /// <summary>
         /// //duration will deleted
         /// </summary>
-        public string Duration { get; set; }
+        //public string Duration { get; set; }
         public string VideoUrl { get; set; }
 
         // Navigation

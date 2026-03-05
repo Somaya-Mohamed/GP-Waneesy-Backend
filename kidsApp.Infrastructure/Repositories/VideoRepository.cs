@@ -13,7 +13,9 @@ public class VideoRepository : GenericRepository<Video>, IVideoRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Video>> GetByDifficultyAsync(string level)
+    
+
+    public async Task<IEnumerable<Video>> GetByCategoryAsync(string level)
     {
         return await _context.Videos
             .Where(v => v.Category == level)
