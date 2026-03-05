@@ -137,9 +137,9 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/videos/difficulty/{level}
         [HttpGet("difficulty/{level}")]
-        public async Task<IActionResult> GetByDifficulty(string level)
+        public async Task<IActionResult> GetByCategory(string level)
         {
-            var videos = await _serviceManager.VideoService.GetVideosByDifficultyAsync(level);
+            var videos = await _serviceManager.VideoService.GetVideosByCategoryAsync(level);
             return Ok(new
             {
                 Success = true,

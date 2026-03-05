@@ -15,7 +15,7 @@ namespace kidsApp.Application.Services.Interfaces
 
         // Advanced Methods
         Task<IEnumerable<VideoActivityDTO>> GetVideoActivitiesByIdAsync(int videoId);
-        Task<IEnumerable<VideoDTO>> GetVideosByDifficultyAsync(string level);
+        Task<IEnumerable<VideoDTO>> GetVideosByCategoryAsync(string level);
         Task<IEnumerable<VideoDTO>> GetTopWatchedVideosAsync(int topCount = 5);
     }
 }
