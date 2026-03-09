@@ -1,10 +1,19 @@
-﻿namespace kidsApp.Application.DTOs.AdminDTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace kidsApp.Application.DTOs.AdminDTOs
 {
     public class AdminCreateUserDTO
     {
-        public string FullName { get; set; }
+        [Required]
+        public string UserName { get; set; }
+
+        [Required, EmailAddress]
         public string Email { get; set; }
-        public string Password { get; set; } // hashed in service
+
+        [Required]
+        public string Password { get; set; }
+
+        [Required]
         public string Role { get; set; }
     }
 }

@@ -65,9 +65,9 @@ public class VideoService : IVideoService
         return _mapper.Map<IEnumerable<VideoActivityDTO>>(filteredActivities);
     }
 
-    public async Task<IEnumerable<VideoDTO>> GetVideosByDifficultyAsync(string level)
+    public async Task<IEnumerable<VideoDTO>> GetVideosByCategoryAsync(string level)
     {
-        var videos = await _unitOfWork.Videos.GetByDifficultyAsync(level);
+        var videos = await _unitOfWork.Videos.GetByCategoryAsync(level);
         return _mapper.Map<IEnumerable<VideoDTO>>(videos);
     }
 
@@ -76,4 +76,6 @@ public class VideoService : IVideoService
         var videos = await _unitOfWork.Videos.GetTopWatchedAsync(topCount);
         return _mapper.Map<IEnumerable<VideoDTO>>(videos);
     }
+
+   
 }

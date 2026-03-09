@@ -13,6 +13,7 @@ using kidsApp.Application.DTOs.TaskLogDTOs;
 using kidsApp.Application.DTOs.VideoActivityDTOs;
 using kidsApp.Application.DTOs.VideoDTOs;
 using kidsApp.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,11 +73,7 @@ namespace kidsApp.Application.Mapping
             // Mapping من Parent → ParentLoginDTO
             CreateMap<Parent, ParentLoginDTO>();
 
-            //CreateMap<Parent, ParentReadDto>();
-            //CreateMap<ParentCreateDto, Parent>();
-            //CreateMap<UpdateParentDTO, Parent>()
-            //    .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<Parent, ParentLoginDTO>();
+           
 
             // ====================== Game ======================
             CreateMap<GameCreateDTO, Game>()
@@ -103,19 +100,27 @@ namespace kidsApp.Application.Mapping
                 .ForMember(d => d.Game, o => o.Ignore())
                 .ForMember(d => d.Child, o => o.Ignore())
                 .ForMember(d => d.Date, o => o.Ignore());
+            //====================== Story ======================
             CreateMap<CreateStoryDTO, Story>()
                 .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.StoryText))
-                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Difficulty))
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+
 
             CreateMap<UpdateStoryDTO, Story>()
                 .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.StoryText))
-                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Difficulty));
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
+
 
             CreateMap<Story, StoryDTO>()
                 .ForMember(dest => dest.StoryId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.StoryText, opt => opt.MapFrom(src => src.Content))
-                .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.Category));
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
+
             // ====================== StoryProgress ======================
             CreateMap<StoryProgress, StoryProgressDTO>();
             CreateMap<CreateStoryProgressDTO, StoryProgress>();
@@ -143,17 +148,17 @@ namespace kidsApp.Application.Mapping
             // ====================== Video ======================
             CreateMap<CreateVideoDTO, Video>()
                 .ForMember(dest => dest.VideoUrl, opt => opt.MapFrom(src => src.Url))
-                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Difficulty))
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<UpdateVideoDTO, Video>()
                 .ForMember(dest => dest.VideoUrl, opt => opt.MapFrom(src => src.Url))
-                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Difficulty))
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Video, VideoDTO>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.Category));
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category));
 
             // ====================== VideoActivity ======================
             CreateMap<VideoActivity, VideoActivityDTO>()
@@ -166,6 +171,13 @@ namespace kidsApp.Application.Mapping
             CreateMap<CreateVideoActivityDTO, VideoActivity>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(_ => "In Progress"));
+            // ===== Admin User =====
+            CreateMap<ApplicationUser, AdminUserDTO>();
+            CreateMap<AdminCreateUserDTO, ApplicationUser>();
+            CreateMap<AdminUpdateUserDTO, ApplicationUser>();
+
+            // ===== Admin Role =====
+            CreateMap<IdentityRole, AdminRoleDTO>();
 
 
         }
