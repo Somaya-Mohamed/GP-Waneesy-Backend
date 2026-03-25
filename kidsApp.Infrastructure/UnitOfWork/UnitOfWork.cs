@@ -37,15 +37,10 @@ namespace kidsApp.Infrastructure.UnitOfWork
             => _videoActivityRepository ??= new VideoActivityRepository(_context);
 
         public IGenericRepository<Story> Stories => new GenericRepository<Story>(_context);
-        //public IGenericRepository<Video> Videos => new GenericRepository<Video>(_context);
         public IGenericRepository<Game> Games => new GenericRepository<Game>(_context);
-        //public IGenericRepository<Tasks> Tasks => new GenericRepository<Tasks>(_context);
-        //public IGenericRepository<StoryProgress> StoryProgress => new GenericRepository<StoryProgress>(_context);
         public IGenericRepository<VideoActivity> VideoActivities => new GenericRepository<VideoActivity>(_context);
         public IGenericRepository<TaskLog> TaskLogs => new GenericRepository<TaskLog>(_context);
         public IGenericRepository<Report> Reports => new GenericRepository<Report>(_context);
-
-        // ✅ Fixed: implement GameScores using the specialized repository
         public IGameScoreRepository GameScores => _GameScoreRepository ??= new GameScoreRepository(_context);
 
         public IVideoRepository Videos => _videoRepository ??= new VideoRepository(_context);
