@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using kidsApp.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using kidsApp.Infrastructure.Data;
 namespace kidsApp.Infrastructure.Migrations
 {
     [DbContext(typeof(KidsAppDbContext))]
-    partial class KidsAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260309095158_Lastt")]
+    partial class Lastt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -201,7 +204,7 @@ namespace kidsApp.Infrastructure.Migrations
                         .HasAnnotation("MaxValue", 18)
                         .HasAnnotation("MinValue", 1);
 
-                    b.Property<string>("AvatarUrl")
+                    b.Property<string>("Avatar")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 

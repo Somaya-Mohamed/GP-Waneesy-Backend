@@ -13,8 +13,24 @@ namespace kidsApp.Infrastructure.Repositories
     {
         public ChildRepository(KidsAppDbContext context) : base(context) { }
 
+
+
         public async Task<IReadOnlyList<Child>> GetChildrenByParentIdAsync(int parentId)
             => await _dbSet.Where(c => c.ParentId == parentId).ToListAsync();
+
+
+        public async Task<Child?> GetByIdWithDetailsAsync(int id)
+        {
+            return await _dbSet
+                .Include(c => c.GameScores)
+                .Include(c => c.StoryProgress)
+                    .ThenInclude(sp => sp.Story)
+                .Include(c => c.VideoActivities)
+                    .ThenInclude(va => va.Video)
+                .Include(c => c.TaskLogs)
+                    .ThenInclude(tl => tl.Task)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
     }
 }
 

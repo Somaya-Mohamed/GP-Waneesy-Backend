@@ -27,7 +27,7 @@ namespace kidsApp.Api
             // ====================== Database ======================
             builder.Services.AddDbContext<KidsAppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")
-                                     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.")));
+                                     ?? throw new InvalidOperationException("Connection string 'Connection' not found.")));
 
             // =========================
             // Identity (مع DbContext عادي)
