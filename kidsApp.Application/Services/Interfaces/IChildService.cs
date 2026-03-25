@@ -17,7 +17,7 @@ namespace kidsApp.Application.Services.Interfaces
         Task<int> GetTotalPointsAsync(int childId);
         Task<double> GetCompletionPercentageAsync(int childId);
         Task<ChildReportDTO> GetWeeklyReportAsync(int childId);
-        Task<IEnumerable<ProgressReadDto>> GetChildActivitiesSummaryAsync(int childId);
+        Task<ChildActivitiesSummaryDTO> GetChildActivitiesSummaryAsync(int childId);
         Task<IEnumerable<ChildTopScoreDTO>> GetTopScoresAsync(int childId, int topCount = 5);
     }
 }

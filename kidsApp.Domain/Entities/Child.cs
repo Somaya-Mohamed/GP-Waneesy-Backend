@@ -13,7 +13,7 @@ namespace kidsApp.Domain.Entities
         public string Name { get; set; }
         public int Age { get; set; }
         public string? Gender { get; set; }
-        public string? Avatar { get; set; }
+        public string? AvatarUrl { get; set; }
         public string? Preferences { get; set; }
 
         // Foreign Key

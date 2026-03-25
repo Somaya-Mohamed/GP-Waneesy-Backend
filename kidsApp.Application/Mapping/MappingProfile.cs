@@ -26,26 +26,31 @@ namespace kidsApp.Application.Mapping
     {
         public MappingProfile() 
         {
-
             // ====================== Child Maps ======================
             CreateMap<Child, ChildReadDTO>()
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Name));   
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl))
+                .ForMember(dest => dest.Preferences, opt => opt.MapFrom(src => src.Preferences));
 
             CreateMap<ChildCreateDTO, Child>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.FullName))
-                .ForMember(dest => dest.Gender, opt => opt.Ignore())      
-                .ForMember(dest => dest.Avatar, opt => opt.Ignore())
-                .ForMember(dest => dest.Preferences, opt => opt.Ignore());
+                .ForMember(dest => dest.Gender, opt => opt.Ignore())
+                .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl))           
+                .ForMember(dest => dest.Preferences, opt => opt.MapFrom(src => src.Preferences)); 
 
             CreateMap<ChildUpdateDto, Child>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.Age))                 
+                .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl))
+                .ForMember(dest => dest.Preferences, opt => opt.MapFrom(src => src.Preferences))
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
 
             // ChildReportDTO 
             CreateMap<Child, ChildReportDTO>()
                 .ForMember(dest => dest.ChildId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.TotalPoints, opt => opt.Ignore()) 
+                .ForMember(dest => dest.TotalPoints, opt => opt.Ignore())
                 .ForMember(dest => dest.GamesPlayed, opt => opt.Ignore())
                 .ForMember(dest => dest.StoriesCompleted, opt => opt.Ignore())
                 .ForMember(dest => dest.TasksCompleted, opt => opt.Ignore());
@@ -56,11 +61,12 @@ namespace kidsApp.Application.Mapping
                 .ForMember(dest => dest.GameTitle, opt => opt.MapFrom(src => src.Game.Title))
                 .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.ScoreValue))
                 .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date));
+
             // ====================== Parent ======================
-           /// Mapping من Parent Entity → ParentReadDto
+            /// Mapping من Parent Entity → ParentReadDto
             CreateMap<Parent, ParentReadDto>()
-                .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.Id)) // Id → ParentId
-                .ForMember(dest => dest.Children, opt => opt.Ignore()); // لو عايز تضيف mapping للأطفال لاحقاً
+                .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.Id)) 
+                .ForMember(dest => dest.Children, opt => opt.Ignore()); 
 
             // Mapping من ParentCreateDto → Parent Entity
             CreateMap<ParentCreateDto, Parent>()
@@ -73,8 +79,6 @@ namespace kidsApp.Application.Mapping
             // Mapping من Parent → ParentLoginDTO
             CreateMap<Parent, ParentLoginDTO>();
 
-           
-
             // ====================== Game ======================
             CreateMap<GameCreateDTO, Game>()
      .ForMember(dest => dest.DifficultyLevel, opt => opt.MapFrom(src => src.Difficulty));
@@ -84,6 +88,7 @@ namespace kidsApp.Application.Mapping
 
             CreateMap<Game, GameReadDto>()
                 .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.DifficultyLevel));
+
             // ====================== GameScore ======================
            CreateMap<GameScore, GameScoreDTO>()
                .ForMember(d => d.ScoreId, o => o.MapFrom(s => s.Id))
@@ -100,6 +105,7 @@ namespace kidsApp.Application.Mapping
                 .ForMember(d => d.Game, o => o.Ignore())
                 .ForMember(d => d.Child, o => o.Ignore())
                 .ForMember(d => d.Date, o => o.Ignore());
+
             //====================== Story ======================
             CreateMap<CreateStoryDTO, Story>()
                 .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.StoryText))
@@ -143,8 +149,6 @@ namespace kidsApp.Application.Mapping
                 .ForMember(dest => dest.DateCompleted, opt => opt.Ignore());
 
 
-
-
             // ====================== Video ======================
             CreateMap<CreateVideoDTO, Video>()
                 .ForMember(dest => dest.VideoUrl, opt => opt.MapFrom(src => src.Url))
@@ -171,6 +175,7 @@ namespace kidsApp.Application.Mapping
             CreateMap<CreateVideoActivityDTO, VideoActivity>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(_ => "In Progress"));
+
             // ===== Admin User =====
             CreateMap<ApplicationUser, AdminUserDTO>();
             CreateMap<AdminCreateUserDTO, ApplicationUser>();
