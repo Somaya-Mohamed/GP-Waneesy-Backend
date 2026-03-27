@@ -3,10 +3,12 @@ using kidsApp.Application.DTOs.TaskLogDTOs;
 using kidsApp.Application.Services.Interfaces;
 using kidsApp.Domain.Contracts;
 using kidsApp.Domain.Entities;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Services.Classes
+namespace kidsApp.Application.Services
 {
     public class TaskLogService : ITaskLogService
     {
@@ -21,45 +23,29 @@ namespace kidsApp.Application.Services.Classes
 
         public async Task<IEnumerable<TaskLogDTO>> GetAllAsync()
         {
-            var logs = await _unitOfWork.TaskLogs.GetAllAsync();
+            var logs = await _unitOfWork.TaskLogs.GetAllWithDetailsAsync();
             return _mapper.Map<IEnumerable<TaskLogDTO>>(logs);
         }
 
-        public async Task<TaskLogDTO> GetByIdAsync(int id)
+        public async Task<TaskLogDTO?> GetByIdAsync(int id)
         {
-            var log = await _unitOfWork.TaskLogs.GetByIdAsync(id);
-            return _mapper.Map<TaskLogDTO>(log);
+            var log = await _unitOfWork.TaskLogs.GetByIdWithDetailsAsync(id);
+            return log == null ? null : _mapper.Map<TaskLogDTO>(log);
         }
-        // this to solve problem why childid,log=null in tasklog table when create new log
-        //public async Task<TaskLogDTO> CreateAsync(CreateTaskLogDTO dto)
-        //{
-        //    var log = _mapper.Map<TaskLog>(dto);
-        //    log.Status = dto.IsCompleted ? "Completed" : "Pending";
-        //    log.DateCompleted = dto.IsCompleted ? DateTime.UtcNow : default;
 
-        //    await _unitOfWork.TaskLogs.AddAsync(log);
-        //    await _unitOfWork.SaveChangesAsync();
-
-        //    // Reload including navigation
-        //    var createdLog = await (_unitOfWork.TaskLogs as TaskLogRepository)
-        //        .GetByIdWithRelationsAsync(log.Id);
-
-        //    return _mapper.Map<TaskLogDTO>(createdLog);
-        //}
         public async Task<TaskLogDTO> CreateAsync(CreateTaskLogDTO dto)
         {
             var log = _mapper.Map<TaskLog>(dto);
+
             log.Status = dto.IsCompleted ? "Completed" : "Pending";
-            log.DateCompleted = dto.IsCompleted ? DateTime.UtcNow : default;
+            log.DateCompleted = dto.IsCompleted ? DateTime.UtcNow : null;
+            log.PointsEarned = dto.IsCompleted ? 10 : 0;   // يمكن تعديله حسب الـ Task.PointsRewarded بعدين
 
             await _unitOfWork.TaskLogs.AddAsync(log);
             await _unitOfWork.SaveChangesAsync();
 
-            // Removed the reference to TaskLogRepository as it is not defined in the provided context.
-            // Assuming GetByIdAsync is sufficient to retrieve the created entity.
-            var createdLog = await _unitOfWork.TaskLogs.GetByIdAsync(log.Id);
-
-            return _mapper.Map<TaskLogDTO>(createdLog);
+            var created = await _unitOfWork.TaskLogs.GetByIdWithDetailsAsync(log.Id);
+            return _mapper.Map<TaskLogDTO>(created!);
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -70,6 +56,18 @@ namespace kidsApp.Application.Services.Classes
             _unitOfWork.TaskLogs.Delete(log);
             await _unitOfWork.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<IEnumerable<TaskLogDTO>> GetTaskLogsByTaskIdAsync(int taskId)
+        {
+            var logs = await _unitOfWork.TaskLogs.GetByTaskIdAsync(taskId);
+            return _mapper.Map<IEnumerable<TaskLogDTO>>(logs);
+        }
+
+        public async Task<IEnumerable<TaskLogDTO>> GetTaskLogsByChildIdAsync(int childId)
+        {
+            var logs = await _unitOfWork.TaskLogs.GetByChildIdAsync(childId);
+            return _mapper.Map<IEnumerable<TaskLogDTO>>(logs);
         }
     }
 }

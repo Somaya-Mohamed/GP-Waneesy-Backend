@@ -128,37 +128,32 @@ namespace kidsApp.API.Controllers
         }
 
 
-        // POST: api/v1/children/5/avatar   ← ده اللي الـ AI هيستخدمه
+        // POST: api/v1/children/5/avatar   
         [HttpPost("{id:int}/avatar")]
         public async Task<IActionResult> UploadAvatar(int id, [FromForm] ChildAvatarUploadDto dto)
         {
             if (dto.AvatarImage == null || dto.AvatarImage.Length == 0)
                 return BadRequest(new { Success = false, Message = "No avatar image uploaded" });
 
-            // التحقق من نوع الملف (اختياري لكن مهم)
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
             var extension = Path.GetExtension(dto.AvatarImage.FileName).ToLower();
             if (!allowedExtensions.Contains(extension))
                 return BadRequest(new { Success = false, Message = "Only jpg, jpeg, png, webp allowed" });
 
-            // إنشاء المجلد لو مش موجود
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "avatars");
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
-            // اسم ملف فريد
             var uniqueFileName = $"child_{id}_{Guid.NewGuid()}{extension}";
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-            // حفظ الصورة
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await dto.AvatarImage.CopyToAsync(stream);
             }
 
-            var avatarUrl = $"/avatars/{uniqueFileName}";   // رابط نسبي
+            var avatarUrl = $"/avatars/{uniqueFileName}";   
 
-            // تحديث الطفل بالرابط الجديد
             var updateDto = new ChildUpdateDto { AvatarUrl = avatarUrl };
             var updated = await _serviceManager.ChildService.UpdateAsync(id, updateDto);
 

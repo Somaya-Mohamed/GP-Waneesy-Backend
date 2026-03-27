@@ -23,6 +23,7 @@ namespace kidsApp.Infrastructure.Repositories
         {
             return await _dbSet
                 .Include(c => c.GameScores)
+                    .ThenInclude(gs => gs.Game)        
                 .Include(c => c.StoryProgress)
                     .ThenInclude(sp => sp.Story)
                 .Include(c => c.VideoActivities)

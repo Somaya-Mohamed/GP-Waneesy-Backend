@@ -79,22 +79,40 @@ namespace kidsApp.Application.Mapping
             // Mapping من Parent → ParentLoginDTO
             CreateMap<Parent, ParentLoginDTO>();
 
+
             // ====================== Game ======================
             CreateMap<GameCreateDTO, Game>()
-     .ForMember(dest => dest.DifficultyLevel, opt => opt.MapFrom(src => src.Difficulty));
-
-            CreateMap<GameUpdateDTO, Game>()
                 .ForMember(dest => dest.DifficultyLevel, opt => opt.MapFrom(src => src.Difficulty));
 
+            CreateMap<GameUpdateDTO, Game>()
+                .ForMember(dest => dest.DifficultyLevel, opt => opt.MapFrom(src => src.Difficulty))
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
             CreateMap<Game, GameReadDto>()
-                .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.DifficultyLevel));
+                .ForMember(dest => dest.GameId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
+                .ForMember(dest => dest.GameLink, opt => opt.MapFrom(src => src.GameLink))
+                .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.DifficultyLevel))
+                .ForMember(dest => dest.PointsRewarded, opt => opt.MapFrom(src => src.PointsRewarded));
 
             // ====================== GameScore ======================
-           CreateMap<GameScore, GameScoreDTO>()
-               .ForMember(d => d.ScoreId, o => o.MapFrom(s => s.Id))
-               .ForMember(d => d.Score, o => o.MapFrom(s => s.ScoreValue))
-               .ForMember(d => d.ChildName, o => o.MapFrom(s => s.Child.Name))
-               .ForMember(d => d.GameTitle, o => o.MapFrom(s => s.Game.Title));
+            CreateMap<GameScore, GameScoreDTO>()
+                .ForMember(d => d.ScoreId, o => o.MapFrom(s => s.Id))
+                .ForMember(d => d.Score, o => o.MapFrom(s => s.ScoreValue))
+                .ForMember(d => d.ChildName, o => o.MapFrom(s => s.Child.Name))
+                .ForMember(d => d.GameTitle, o => o.MapFrom(s => s.Game.Title))
+                .ForMember(d => d.Attempts, o => o.MapFrom(s => s.Attempts))
+                .ForMember(d => d.Date, o => o.MapFrom(s => s.Date));
+
+            CreateMap<GameScoreCreateDTO, GameScore>()
+                .ForMember(dest => dest.ScoreValue, opt => opt.MapFrom(src => src.Score))
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Date, opt => opt.MapFrom(_ => DateTime.UtcNow))
+                .ForMember(dest => dest.Attempts, opt => opt.MapFrom(src => src.Attempts))
+                .ForMember(dest => dest.Child, opt => opt.Ignore())
+                .ForMember(dest => dest.Game, opt => opt.Ignore());
 
             // ====================== GameScore Create ======================
             CreateMap<GameScoreCreateDTO, GameScore>()
@@ -106,45 +124,64 @@ namespace kidsApp.Application.Mapping
                 .ForMember(d => d.Child, o => o.Ignore())
                 .ForMember(d => d.Date, o => o.Ignore());
 
-            //====================== Story ======================
+            // ====================== Story ======================
             CreateMap<CreateStoryDTO, Story>()
                 .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.StoryText))
                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
+                .ForMember(dest => dest.AudioUrl, opt => opt.MapFrom(src => src.AudioUrl))
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
-
-
 
             CreateMap<UpdateStoryDTO, Story>()
                 .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.StoryText))
                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
-                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
-
+                .ForMember(dest => dest.AudioUrl, opt => opt.MapFrom(src => src.AudioUrl))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Story, StoryDTO>()
                 .ForMember(dest => dest.StoryId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.StoryText, opt => opt.MapFrom(src => src.Content))
                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
+                .ForMember(dest => dest.AudioUrl, opt => opt.MapFrom(src => src.AudioUrl))
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
 
             // ====================== StoryProgress ======================
-            CreateMap<StoryProgress, StoryProgressDTO>();
-            CreateMap<CreateStoryProgressDTO, StoryProgress>();
-            CreateMap<ProgressCreateDto, StoryProgress>();
+            CreateMap<StoryProgress, StoryProgressDTO>()
+                .ForMember(dest => dest.ProgressId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.ChildName, opt => opt.MapFrom(src => src.Child != null ? src.Child.Name : "Unknown Child"))
+                .ForMember(dest => dest.StoryTitle, opt => opt.MapFrom(src => src.Story != null ? src.Story.Title : "Unknown Story"))
+                .ForMember(dest => dest.ProgressPercent, opt => opt.MapFrom(src => src.ProgressPercent))
+                .ForMember(dest => dest.LastUpdated, opt => opt.MapFrom(src => src.LastUpdated));
+
+            CreateMap<CreateStoryProgressDTO, StoryProgress>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.Ignore())
+                .ForMember(dest => dest.DateCompleted, opt => opt.Ignore())
+                .ForMember(dest => dest.LastUpdated, opt => opt.Ignore());
 
             // ====================== Task ======================
-            // Mapping for creating task
             CreateMap<CreateTaskDTO, Tasks>()
-                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Difficulty))
-                .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.Difficulty));
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
 
-            // Mapping for returning DTO
+            CreateMap<UpdateTaskDTO, Tasks>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<Tasks, TaskDTO>()
+                .ForMember(dest => dest.TaskId, opt => opt.MapFrom(src => src.Id));
+
+            // ====================== TaskLog ======================
             CreateMap<TaskLog, TaskLogDTO>()
-     .ForMember(dest => dest.LogId, opt => opt.MapFrom(src => src.Id))
-     .ForMember(dest => dest.ChildName, opt => opt.MapFrom(src => src.Child.Name))
-     .ForMember(dest => dest.TaskTitle, opt => opt.MapFrom(src => src.Task.Title));
+                .ForMember(dest => dest.LogId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.ChildName, opt => opt.MapFrom(src => src.Child != null ? src.Child.Name : "Unknown Child"))
+                .ForMember(dest => dest.TaskTitle, opt => opt.MapFrom(src => src.Task != null ? src.Task.Title : "Unknown Task"))
+                .ForMember(dest => dest.PointsEarned, opt => opt.MapFrom(src => src.PointsEarned))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.DateCompleted, opt => opt.MapFrom(src => src.DateCompleted));
 
             CreateMap<CreateTaskLogDTO, TaskLog>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.PointsEarned, opt => opt.Ignore())   
                 .ForMember(dest => dest.Status, opt => opt.Ignore())
                 .ForMember(dest => dest.DateCompleted, opt => opt.Ignore());
 

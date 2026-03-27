@@ -3,8 +3,12 @@ using kidsApp.Application.DTOs.StoryProgress_DTOs;
 using kidsApp.Application.Services.Interfaces;
 using kidsApp.Domain.Contracts;
 using kidsApp.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace kidsApp.Application.Services.Classes
+namespace kidsApp.Application.Services
 {
     public class StoryProgressService : IStoryProgressService
     {
@@ -20,53 +24,53 @@ namespace kidsApp.Application.Services.Classes
         public async Task<IEnumerable<StoryProgressDTO>> GetAllAsync()
         {
             var progresses = await _unitOfWork.StoryProgress.GetAllWithDetailsAsync();
-
-            return progresses.Select(p => new StoryProgressDTO
-            {
-                ProgressId = p.Id,
-                ChildId = p.ChildId,
-                ChildName = p.Child.Name,
-                StoryId = p.StoryId,
-                StoryTitle = p.Story.Title,
-                ProgressPercent = p.ProgressPercent,
-                LastUpdated = p.LastUpdated
-            });
+            return _mapper.Map<IEnumerable<StoryProgressDTO>>(progresses);
         }
 
         public async Task<StoryProgressDTO?> GetByIdAsync(int id)
         {
             var progress = await _unitOfWork.StoryProgress.GetByIdWithDetailsAsync(id);
-            if (progress == null) return null;
+            return progress == null ? null : _mapper.Map<StoryProgressDTO>(progress);
+        }
 
-            return new StoryProgressDTO
-            {
-                ProgressId = progress.Id,
-                ChildId = progress.ChildId,
-                ChildName = progress.Child.Name,
-                StoryId = progress.StoryId,
-                StoryTitle = progress.Story.Title,
-                ProgressPercent = progress.ProgressPercent,
-                LastUpdated = progress.LastUpdated
-            };
+        public async Task<IEnumerable<StoryProgressDTO>> GetStoryProgressByIdAsync(int storyId)
+        {
+            var progresses = await _unitOfWork.StoryProgress.GetAllWithDetailsAsync();
+
+            var filtered = progresses
+                .Where(p => p.StoryId == storyId)
+                .OrderByDescending(p => p.LastUpdated)
+                .ToList();
+
+            return _mapper.Map<IEnumerable<StoryProgressDTO>>(filtered);
+        }
+
+        public async Task<IEnumerable<StoryProgressDTO>> GetProgressByChildIdAsync(int childId)
+        {
+            var progresses = await _unitOfWork.StoryProgress.GetAllWithDetailsAsync();
+
+            var filtered = progresses
+                .Where(p => p.ChildId == childId)
+                .OrderByDescending(p => p.LastUpdated)
+                .ToList();
+
+            return _mapper.Map<IEnumerable<StoryProgressDTO>>(filtered);
         }
 
         public async Task<StoryProgressDTO> CreateAsync(CreateStoryProgressDTO dto)
         {
             var entity = _mapper.Map<StoryProgress>(dto);
 
-            entity.Status = dto.ProgressPercent >= 100 ? "Completed" : "InProgress";
             entity.LastUpdated = DateTime.UtcNow;
-            entity.DateCompleted = dto.ProgressPercent >= 100
-                ? DateTime.UtcNow
-                : default;
+            entity.Status = entity.ProgressPercent >= 100 ? "Completed" : "InProgress";
+            entity.DateCompleted = entity.ProgressPercent >= 100 ? DateTime.UtcNow : default(DateTime);
 
             await _unitOfWork.StoryProgress.AddAsync(entity);
             await _unitOfWork.SaveChangesAsync();
 
-            var fullEntity = await _unitOfWork.StoryProgress
-                .GetByIdWithDetailsAsync(entity.Id);
+            var created = await _unitOfWork.StoryProgress.GetByIdWithDetailsAsync(entity.Id);
 
-            return await GetByIdAsync(entity.Id) ?? throw new Exception("Creation failed");
+            return _mapper.Map<StoryProgressDTO>(created!);
         }
 
         public async Task<bool> DeleteAsync(int id)

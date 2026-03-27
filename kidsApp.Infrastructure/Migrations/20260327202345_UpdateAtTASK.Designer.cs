@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using kidsApp.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using kidsApp.Infrastructure.Data;
 namespace kidsApp.Infrastructure.Migrations
 {
     [DbContext(typeof(KidsAppDbContext))]
-    partial class KidsAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260327202345_UpdateAtTASK")]
+    partial class UpdateAtTASK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -393,9 +396,6 @@ namespace kidsApp.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PointsRewarded")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -500,9 +500,6 @@ namespace kidsApp.Infrastructure.Migrations
                     b.Property<string>("Duration")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PointsRewarded")
-                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()

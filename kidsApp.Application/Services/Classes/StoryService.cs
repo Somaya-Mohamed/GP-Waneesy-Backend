@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace kidsApp.Application.Services.Classes
+namespace kidsApp.Application.Services
 {
     public class StoryService : IStoryService
     {
@@ -21,26 +21,20 @@ namespace kidsApp.Application.Services.Classes
             _mapper = mapper;
         }
 
-        // GET all stories
         public async Task<IEnumerable<StoryDTO>> GetAllAsync()
         {
             var stories = await _unitOfWork.Stories.GetAllAsync();
             return _mapper.Map<IEnumerable<StoryDTO>>(stories);
         }
 
-        // GET story by id
-        public async Task<StoryDTO> GetByIdAsync(int id)
+        public async Task<StoryDTO?> GetByIdAsync(int id)
         {
             var story = await _unitOfWork.Stories.GetByIdAsync(id);
-            if (story == null) return null;
-
-            return _mapper.Map<StoryDTO>(story);
+            return story == null ? null : _mapper.Map<StoryDTO>(story);
         }
 
-        // CREATE story
         public async Task<StoryDTO> CreateAsync(CreateStoryDTO dto)
         {
-            // Use AutoMapper (mapping already defined in MappingProfile)
             var story = _mapper.Map<Story>(dto);
 
             await _unitOfWork.Stories.AddAsync(story);
@@ -49,21 +43,18 @@ namespace kidsApp.Application.Services.Classes
             return _mapper.Map<StoryDTO>(story);
         }
 
-        // UPDATE story
         public async Task<bool> UpdateAsync(int id, UpdateStoryDTO dto)
         {
             var story = await _unitOfWork.Stories.GetByIdAsync(id);
             if (story == null) return false;
 
-            // AutoMapper handles StoryText -> Content and Difficulty -> Category
             _mapper.Map(dto, story);
-
             _unitOfWork.Stories.Update(story);
             await _unitOfWork.SaveChangesAsync();
+
             return true;
         }
 
-        // DELETE story
         public async Task<bool> DeleteAsync(int id)
         {
             var story = await _unitOfWork.Stories.GetByIdAsync(id);
@@ -71,23 +62,30 @@ namespace kidsApp.Application.Services.Classes
 
             _unitOfWork.Stories.Delete(story);
             await _unitOfWork.SaveChangesAsync();
+
             return true;
         }
 
-        // Get story progress by storyId
-        public async Task<IEnumerable<StoryProgressDTO>> GetStoryProgressByIdAsync(int storyId)
-        {
-            var progresses = await _unitOfWork.StoryProgress.GetAllAsync();
-            var filtered = progresses.Where(p => p.StoryId == storyId);
+        //// Get story progress by storyId
+        //public async Task<IEnumerable<StoryProgressDTO>> GetStoryProgressByIdAsync(int storyId)
+        //{
+        //    var progresses = await _unitOfWork.StoryProgress.GetAllAsync();
+        //    var filtered = progresses.Where(p => p.StoryId == storyId).ToList();
 
-            return _mapper.Map<IEnumerable<StoryProgressDTO>>(filtered);
-        }
+        //    return _mapper.Map<IEnumerable<StoryProgressDTO>>(filtered);
+        //}
 
         // Get stories by category
         public async Task<IEnumerable<StoryDTO>> GetStoriesByCategoryAsync(string category)
         {
+            if (string.IsNullOrWhiteSpace(category))
+                return Enumerable.Empty<StoryDTO>();
+
             var stories = await _unitOfWork.Stories.GetAllAsync();
-            var filtered = stories.Where(s => s.Category.ToLower() == category.ToLower());
+
+            var filtered = stories
+                .Where(s => s.Category.Equals(category, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
             return _mapper.Map<IEnumerable<StoryDTO>>(filtered);
         }

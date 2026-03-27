@@ -7,22 +7,23 @@ namespace kidsApp.Domain.Contracts
 {
     public interface IUnitOfWork : IDisposable
     {
+        // Repositories
         IChildRepository Children { get; }
         IParentRepository Parents { get; }
 
         IStoryProgressRepository StoryProgress { get; }
         IVideoRepository Videos { get; }
         IVideoActivityRepository VideoActivitiesRepo { get; }
-        IGenericRepository<Story> Stories { get; } // Only for Story
-        //IGenericRepository<Video> Videos { get; } // Videos
-        IGenericRepository<Game> Games { get; } // Games
+
         ITaskRepository Tasks { get; }
-        //IGenericRepository<Tasks> Tasks { get; } // Tasks
-        //IGenericRepository<StoryProgress> StoryProgress { get; } // Story progress
-        //IGenericRepository<VideoActivity> VideoActivities { get; } // Video activity
-        IGameScoreRepository GameScores { get; } // Game scores
-        IGenericRepository<TaskLog> TaskLogs { get; } // Task logs
-        IGenericRepository<Report> Reports { get; } // Reports
+        ITaskLogRepository TaskLogs { get; }           
+
+        IGameScoreRepository GameScores { get; }
+
+        // Generic ones
+        IGenericRepository<Story> Stories { get; }
+        IGenericRepository<Game> Games { get; }
+        IGenericRepository<Report> Reports { get; }
 
         Task<int> SaveChangesAsync(CancellationToken ct = default);
     }

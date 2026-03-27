@@ -11,7 +11,6 @@ namespace kidsApp.Domain.Contracts
     {
         Task<IReadOnlyList<Child>> GetChildrenByParentIdAsync(int parentId);
         Task<Child?> GetByIdWithDetailsAsync(int id);
-        //Task<IEnumerable<Child>> GetChildrenByParentId(int parentId);
 
     }
 }

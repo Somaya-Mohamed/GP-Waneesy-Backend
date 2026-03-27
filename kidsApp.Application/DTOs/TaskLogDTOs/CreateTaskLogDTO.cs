@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kidsApp.Application.DTOs.TaskLogDTOs
+﻿namespace kidsApp.Application.DTOs.TaskLogDTOs
 {
     public class CreateTaskLogDTO
     {
@@ -12,5 +6,4 @@ namespace kidsApp.Application.DTOs.TaskLogDTOs
         public int TaskId { get; set; }
         public bool IsCompleted { get; set; }
     }
-
 }

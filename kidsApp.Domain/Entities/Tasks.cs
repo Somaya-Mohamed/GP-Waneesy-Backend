@@ -1,24 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace kidsApp.Domain.Entities
 {
     public class Tasks
     {
         public int Id { get; set; }
-        //public int TaskId { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string? Difficulty { get; set; }   // ✅ أضفناها
 
-        public string? Category { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public string Difficulty { get; set; } = "Easy";
+
         public string Duration { get; set; } = "10";
         public string? VideoUrl { get; set; }
 
+        public int PointsRewarded { get; set; } = 10;  
+
         // Navigation
-        public ICollection<TaskLog> TaskLogs { get; set; }
+        public ICollection<TaskLog> TaskLogs { get; set; } = new List<TaskLog>();
     }
 }
