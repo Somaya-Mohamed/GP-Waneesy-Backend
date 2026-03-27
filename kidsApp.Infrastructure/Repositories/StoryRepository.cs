@@ -25,5 +25,6 @@ namespace kidsApp.Infrastructure.Repositories
                 .Where(s => s.Category.ToLower() == category.ToLower())
                 .ToListAsync();
         }
+
     }
 }

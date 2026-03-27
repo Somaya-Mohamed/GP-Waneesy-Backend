@@ -2,10 +2,7 @@
 using kidsApp.Domain.Entities;
 using kidsApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace kidsApp.Infrastructure.Repositories
@@ -14,12 +11,17 @@ namespace kidsApp.Infrastructure.Repositories
     {
         public GameScoreRepository(KidsAppDbContext context) : base(context) { }
 
-        public async Task<IEnumerable<GameScore>> GetWithDetailsAsync()
+        public async Task<IReadOnlyList<GameScore>> GetWithDetailsAsync()
         {
-            return await _context.GameScores
-                .Include(x => x.Game)
-                .Include(x => x.Child)
+            return await _dbSet
+                .Include(gs => gs.Child)
+                .Include(gs => gs.Game)
                 .ToListAsync();
+        }
+
+        public IQueryable<GameScore> GetQueryable()
+        {
+            return _dbSet.AsQueryable();
         }
     }
 }

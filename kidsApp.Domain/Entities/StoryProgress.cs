@@ -13,7 +13,7 @@ namespace kidsApp.Domain.Entities
         public int StoryId { get; set; }
         public string Status { get; set; }
         public double ProgressPercent { get; set; }
-        public DateTime DateCompleted { get; set; } // Added this property to fix the error  
+        public DateTime DateCompleted { get; set; } 
         public Child Child { get; set; }
         public Story Story { get; set; }
         public DateTime LastUpdated { get; set; }

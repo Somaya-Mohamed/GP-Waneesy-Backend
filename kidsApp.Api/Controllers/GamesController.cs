@@ -1,12 +1,12 @@
 ﻿using kidsApp.Application.DTOs.GameDTOs;
 using kidsApp.Application.ServiceManager;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/games")]
-    //[Authorize] // enable later if needed
     public class GamesController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -16,152 +16,103 @@ namespace kidsApp.API.Controllers
             _serviceManager = serviceManager;
         }
 
-        // GET: api/v1/games
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var games = await _serviceManager.GameService.GetAllAsync();
-            return Ok(new
-            {
-                Success = true,
-                Message = "Games retrieved successfully",
-                Data = games
-            });
+            return Ok(new { Success = true, Message = "Games retrieved successfully", Data = games });
         }
 
-        // GET: api/v1/games/5
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var game = await _serviceManager.GameService.GetByIdAsync(id);
             if (game == null)
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = "Game not found"
-                });
+                return NotFound(new { Success = false, Message = "Game not found" });
 
-            return Ok(new
-            {
-                Success = true,
-                Message = "Game retrieved successfully",
-                Data = game
-            });
+            return Ok(new { Success = true, Message = "Game retrieved successfully", Data = game });
         }
 
-        // POST: api/v1/games
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] GameCreateDTO dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Invalid data",
-                    Errors = ModelState
-                });
+                return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
+
+            if (dto.PointsRewarded < 0)
+                return BadRequest(new { Success = false, Message = "PointsRewarded cannot be negative" });
 
             var createdGame = await _serviceManager.GameService.CreateAsync(dto);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = createdGame.GameId },
-                new
-                {
-                    Success = true,
-                    Message = "Game created successfully",
-                    Data = createdGame
-                });
+            return CreatedAtAction(nameof(GetById), new { id = createdGame.GameId },
+                new { Success = true, Message = "Game created successfully", Data = createdGame });
         }
 
-        // PUT: api/v1/games/5
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] GameUpdateDTO dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Invalid data",
-                    Errors = ModelState
-                });
+                return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
 
             var updated = await _serviceManager.GameService.UpdateAsync(id, dto);
             if (!updated)
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = "Game not found"
-                });
+                return NotFound(new { Success = false, Message = "Game not found" });
 
-            return Ok(new
-            {
-                Success = true,
-                Message = "Game updated successfully"
-            });
+            return Ok(new { Success = true, Message = "Game updated successfully" });
         }
 
-        // DELETE: api/v1/games/5
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.GameService.DeleteAsync(id);
             if (!deleted)
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = "Game not found"
-                });
+                return NotFound(new { Success = false, Message = "Game not found" });
 
-            return Ok(new
-            {
-                Success = true,
-                Message = "Game deleted successfully"
-            });
+            return Ok(new { Success = true, Message = "Game deleted successfully" });
         }
-        // GET: api/v1/games/difficulty/{level}?page=1&pageSize=10
-        [HttpGet("difficulty/{level}")]
-        public async Task<IActionResult> GetByDifficulty(
-            string level,
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 10)
+
+        // GET: api/v1/games/category/{category}
+        [HttpGet("category/{category}")]
+        public async Task<IActionResult> GetByCategory(string category, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            if (string.IsNullOrWhiteSpace(level))
-                return BadRequest(new { Success = false, Message = "Difficulty level is required." });
+            if (string.IsNullOrWhiteSpace(category))
+                return BadRequest(new { Success = false, Message = "Category is required" });
 
-            var allGames = await _serviceManager.GameService.GetGamesByDifficultyAsync(level);
+            var games = await _serviceManager.GameService.GetGamesByCategoryAsync(category);
 
-            // Case-insensitive filter
-            var filtered = allGames
-                .Where(g => g.Difficulty.Equals(level, StringComparison.OrdinalIgnoreCase));
-
-            // Pagination
-            var paged = filtered
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize);
+            var paged = games.Skip((page - 1) * pageSize).Take(pageSize);
 
             return Ok(new
             {
                 Success = true,
-                Message = "Games retrieved successfully",
+                Message = "Games retrieved successfully by category",
                 Page = page,
                 PageSize = pageSize,
-                Total = filtered.Count(),
+                Total = games.Count(),
                 Data = paged
             });
         }
 
-        //// GET: api/v1/games/difficulty/{level}
-        //[HttpGet("difficulty/{level}")]
-        //public async Task<IActionResult> GetByDifficulty(string level)
-        //{
-        //    var games = await _serviceManager.GameService.GetGamesByDifficultyAsync(level);
-        //    return Ok(new
-        //    {
-        //        Success = true,
-        //        Message = "Games retrieved successfully",
-        //        Data = games
-        //    });
-        //}
+        // GET: api/v1/games/difficulty/{level}
+        [HttpGet("difficulty/{level}")]
+        public async Task<IActionResult> GetByDifficulty(string level, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (string.IsNullOrWhiteSpace(level))
+                return BadRequest(new { Success = false, Message = "Difficulty level is required" });
+
+            var games = await _serviceManager.GameService.GetGamesByDifficultyAsync(level);
+
+            var paged = games.Skip((page - 1) * pageSize).Take(pageSize);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Games retrieved successfully by difficulty",
+                Page = page,
+                PageSize = pageSize,
+                Total = games.Count(),
+                Data = paged
+            });
+        }
     }
 }

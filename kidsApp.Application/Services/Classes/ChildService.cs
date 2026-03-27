@@ -5,6 +5,10 @@ using kidsApp.Application.DTOs.ProgressDTOs;
 using kidsApp.Application.Services.Interfaces;
 using kidsApp.Domain.Contracts;
 using kidsApp.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace kidsApp.Application.Services
 {
@@ -19,6 +23,7 @@ namespace kidsApp.Application.Services
             _mapper = mapper;
         }
 
+        // ====================== Basic CRUD ======================
         public async Task<IEnumerable<ChildReadDTO>> GetAllAsync()
         {
             var children = await _unitOfWork.Children.GetAllAsync();
@@ -60,12 +65,11 @@ namespace kidsApp.Application.Services
             return true;
         }
 
-        // ------------------ Advanced Methods ------------------
+        // ====================== Advanced Methods ======================
 
-        // Weekly progress of the child
         public async Task<IEnumerable<ProgressReadDto>> GetWeeklyProgressAsync(int childId)
         {
-            var child = await _unitOfWork.Children.GetByIdAsync(childId);
+            var child = await _unitOfWork.Children.GetByIdWithDetailsAsync(childId);
             if (child == null) return Enumerable.Empty<ProgressReadDto>();
 
             var lastWeek = DateTime.UtcNow.AddDays(-7);
@@ -79,50 +83,54 @@ namespace kidsApp.Application.Services
                     Activity = new ActivityReadDto
                     {
                         Id = p.StoryId,
-                        Title = p.Story.Title
+                        Title = p.Story?.Title ?? "Unknown Story"
                     },
-                    Score = 0, // Compute if needed
+                    Score = 0,
                     DateCompleted = p.LastUpdated
                 });
 
             return progresses;
         }
 
-        // Total points earned by the child
+        // Total Points
         public async Task<int> GetTotalPointsAsync(int childId)
         {
-            var child = await _unitOfWork.Children.GetByIdAsync(childId);
+            var child = await _unitOfWork.Children.GetByIdWithDetailsAsync(childId);
             if (child == null) return 0;
 
             var gamePoints = child.GameScores?.Sum(g => g.ScoreValue) ?? 0;
             var taskPoints = child.TaskLogs?.Sum(t => t.PointsEarned) ?? 0;
+            var storyPoints = child.StoryProgress?
+                .Where(sp => sp.ProgressPercent >= 100)
+                .Sum(sp => sp.Story?.PointsRewarded ?? 0) ?? 0;
 
-            return gamePoints + taskPoints;
+            return gamePoints + taskPoints + storyPoints;
         }
 
-        // Completion percentage across all activities
         public async Task<double> GetCompletionPercentageAsync(int childId)
         {
-            var child = await _unitOfWork.Children.GetByIdAsync(childId);
+            var child = await _unitOfWork.Children.GetByIdWithDetailsAsync(childId);
             if (child == null) return 0;
 
             int totalActivities = (child.StoryProgress?.Count ?? 0)
                                 + (child.VideoActivities?.Count ?? 0)
-                                + (child.TaskLogs?.Count ?? 0);
+                                + (child.TaskLogs?.Count ?? 0)
+                                + (child.GameScores?.Count ?? 0);
 
             int completedActivities = (child.StoryProgress?.Count(sp => sp.ProgressPercent >= 100) ?? 0)
                                     + (child.VideoActivities?.Count(v => v.WatchedPercent >= 100) ?? 0)
-                                    + (child.TaskLogs?.Count(t => t.Status == "Completed") ?? 0);
+                                    + (child.TaskLogs?.Count(t => t.Status == "Completed") ?? 0)
+                                    + (child.GameScores?.Count(g => g.ScoreValue > 0) ?? 0);
 
             if (totalActivities == 0) return 0;
 
             return Math.Round((double)completedActivities / totalActivities * 100, 2);
         }
 
-        // Weekly report for child (combining scores, progress, tasks)
+        // Weekly Report 
         public async Task<ChildReportDTO> GetWeeklyReportAsync(int childId)
         {
-            var child = await _unitOfWork.Children.GetByIdWithDetailsAsync(childId);   // ← مهم
+            var child = await _unitOfWork.Children.GetByIdWithDetailsAsync(childId);
             if (child == null) return null;
 
             var lastWeek = DateTime.UtcNow.AddDays(-7);
@@ -130,23 +138,29 @@ namespace kidsApp.Application.Services
             var weeklyGames = child.GameScores?.Where(g => g.Date >= lastWeek).ToList() ?? new List<GameScore>();
             var weeklyStories = child.StoryProgress?.Where(s => s.LastUpdated >= lastWeek).ToList() ?? new List<StoryProgress>();
             var weeklyTasks = child.TaskLogs?.Where(t => t.DateCompleted >= lastWeek).ToList() ?? new List<TaskLog>();
+            var weeklyVideos = child.VideoActivities?.Where(v => v.LastUpdated >= lastWeek).ToList() ?? new List<VideoActivity>();
 
             var report = new ChildReportDTO
             {
                 ChildId = child.Id,
                 FullName = child.Name,
-                TotalPoints = (weeklyGames.Sum(g => g.ScoreValue) + weeklyTasks.Sum(t => t.PointsEarned)),
+                TotalPoints = weeklyGames.Sum(g => g.ScoreValue) +
+                             weeklyTasks.Sum(t => t.PointsEarned) +
+                             weeklyStories.Where(s => s.ProgressPercent >= 100)
+                                         .Sum(s => s.Story?.PointsRewarded ?? 0),
                 GamesPlayed = weeklyGames.Count,
                 StoriesCompleted = weeklyStories.Count(s => s.ProgressPercent >= 100),
-                TasksCompleted = weeklyTasks.Count(t => t.Status == "Completed")
+                TasksCompleted = weeklyTasks.Count(t => t.Status == "Completed"),
+                VideosCompleted = weeklyVideos.Count(v => v.WatchedPercent >= 100)
             };
 
             return report;
         }
-        // Summary of child activities
+
+        // Activities Summary 
         public async Task<ChildActivitiesSummaryDTO> GetChildActivitiesSummaryAsync(int childId)
         {
-            var child = await _unitOfWork.Children.GetByIdWithDetailsAsync(childId);   
+            var child = await _unitOfWork.Children.GetByIdWithDetailsAsync(childId);
             if (child == null) return null;
 
             var summary = new ChildActivitiesSummaryDTO
@@ -162,19 +176,24 @@ namespace kidsApp.Application.Services
 
                 TotalTasks = child.TaskLogs?.Count ?? 0,
                 CompletedTasks = child.TaskLogs?.Count(t => t.Status == "Completed") ?? 0,
+
+                TotalGames = child.GameScores?.Count ?? 0,
+                CompletedGames = child.GameScores?.Count(g => g.ScoreValue > 0) ?? 0
             };
 
-            summary.TotalActivities = summary.TotalStories + summary.TotalVideos + summary.TotalTasks;
-            summary.CompletedActivities = summary.CompletedStories + summary.CompletedVideos + summary.CompletedTasks;
+            summary.TotalActivities = summary.TotalStories + summary.TotalVideos +
+                                      summary.TotalTasks + summary.TotalGames;
+
+            summary.CompletedActivities = summary.CompletedStories + summary.CompletedVideos +
+                                          summary.CompletedTasks + summary.CompletedGames;
 
             summary.CompletionPercentage = summary.TotalActivities == 0
                 ? 0
                 : Math.Round((double)summary.CompletedActivities / summary.TotalActivities * 100, 2);
 
-            // أحدث 5 أنشطة (Story + Video + Task)
+            // Recent Activities
             var recent = new List<RecentActivityDto>();
 
-            // Stories
             recent.AddRange(child.StoryProgress?
                 .OrderByDescending(s => s.LastUpdated)
                 .Take(2)
@@ -186,19 +205,28 @@ namespace kidsApp.Application.Services
                     Date = s.LastUpdated
                 }) ?? Enumerable.Empty<RecentActivityDto>());
 
-            // Videos  
             recent.AddRange(child.VideoActivities?
-                .OrderByDescending(v => v.Id)   
+                .OrderByDescending(v => v.LastUpdated ?? DateTime.UtcNow)
                 .Take(2)
                 .Select(v => new RecentActivityDto
                 {
                     ActivityType = "Video",
                     Title = v.Video?.Title ?? "Unknown Video",
                     Progress = v.WatchedPercent,
-                    Date = DateTime.UtcNow   
+                    Date = v.LastUpdated ?? DateTime.UtcNow
                 }) ?? Enumerable.Empty<RecentActivityDto>());
 
-            // Tasks
+            recent.AddRange(child.GameScores?
+                .OrderByDescending(g => g.Date)
+                .Take(2)
+                .Select(g => new RecentActivityDto
+                {
+                    ActivityType = "Game",
+                    Title = g.Game?.Title ?? "Unknown Game",
+                    Progress = 100,
+                    Date = g.Date
+                }) ?? Enumerable.Empty<RecentActivityDto>());
+
             recent.AddRange(child.TaskLogs?
                 .OrderByDescending(t => t.DateCompleted)
                 .Take(1)
@@ -207,7 +235,7 @@ namespace kidsApp.Application.Services
                     ActivityType = "Task",
                     Title = t.Task?.Title ?? "Unknown Task",
                     Progress = t.Status == "Completed" ? 100 : 0,
-                    Date = t.DateCompleted
+                    Date = t.DateCompleted ?? DateTime.UtcNow
                 }) ?? Enumerable.Empty<RecentActivityDto>());
 
             summary.RecentActivities = recent
@@ -217,10 +245,10 @@ namespace kidsApp.Application.Services
 
             return summary;
         }
-        // Top scores of child
+
         public async Task<IEnumerable<ChildTopScoreDTO>> GetTopScoresAsync(int childId, int topCount = 5)
         {
-            var child = await _unitOfWork.Children.GetByIdWithDetailsAsync(childId);   
+            var child = await _unitOfWork.Children.GetByIdWithDetailsAsync(childId);
             if (child == null) return Enumerable.Empty<ChildTopScoreDTO>();
 
             var topScores = child.GameScores?

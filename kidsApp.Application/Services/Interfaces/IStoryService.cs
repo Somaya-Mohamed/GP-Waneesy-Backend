@@ -14,7 +14,7 @@ namespace kidsApp.Application.Services.Interfaces
         Task<bool> DeleteAsync(int id);
 
         // Advanced Methods
-        Task<IEnumerable<StoryProgressDTO>> GetStoryProgressByIdAsync(int storyId);
+        //Task<IEnumerable<StoryProgressDTO>> GetStoryProgressByIdAsync(int storyId);
         Task<IEnumerable<StoryDTO>> GetStoriesByCategoryAsync(string category);
     }
 }

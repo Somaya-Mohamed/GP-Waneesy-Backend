@@ -1,70 +1,98 @@
 ﻿using AutoMapper;
 using kidsApp.Application.DTOs.GameDTOs;
-using kidsApp.Application.ServiceManager;
 using kidsApp.Application.Services.Interfaces;
 using kidsApp.Domain.Contracts;
 using kidsApp.Domain.Entities;
-using System.Runtime.InteropServices;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-public class GameService : IGameService
+namespace kidsApp.Application.Services
 {
-
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-
-    public GameService(IUnitOfWork unitOfWork, IMapper mapper)
+    public class GameService : IGameService
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-    }
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-    // CRUD
-    public async Task<IEnumerable<GameReadDto>> GetAllAsync()
-    {
-        var data = await _unitOfWork.Games.GetAllAsync();
-        return _mapper.Map<IEnumerable<GameReadDto>>(data);
-    }
+        public GameService(IUnitOfWork unitOfWork, IMapper mapper)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
 
-    public async Task<GameReadDto> GetByIdAsync(int id)
-    {
-        var entity = await _unitOfWork.Games.GetByIdAsync(id);
-        return _mapper.Map<GameReadDto>(entity);
-    }
+        // ====================== CRUD ======================
+        public async Task<IEnumerable<GameReadDto>> GetAllAsync()
+        {
+            var games = await _unitOfWork.Games.GetAllAsync();
+            return _mapper.Map<IEnumerable<GameReadDto>>(games);
+        }
 
-    public async Task<GameReadDto> CreateAsync(GameCreateDTO dto)
-    {
-        var entity = _mapper.Map<Game>(dto);
-        await _unitOfWork.Games.AddAsync(entity);
-        await _unitOfWork.SaveChangesAsync();
+        public async Task<GameReadDto?> GetByIdAsync(int id)
+        {
+            var entity = await _unitOfWork.Games.GetByIdAsync(id);
+            return entity == null ? null : _mapper.Map<GameReadDto>(entity);
+        }
 
-        return _mapper.Map<GameReadDto>(entity);
-    }
+        public async Task<GameReadDto> CreateAsync(GameCreateDTO dto)
+        {
+            var entity = _mapper.Map<Game>(dto);
+            await _unitOfWork.Games.AddAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
 
-    public async Task<bool> UpdateAsync(int id, GameUpdateDTO dto)
-    {
-        var entity = await _unitOfWork.Games.GetByIdAsync(id);
-        if (entity == null) return false;
+            return _mapper.Map<GameReadDto>(entity);
+        }
 
-        _mapper.Map(dto, entity);
-        _unitOfWork.Games.Update(entity);
-        await _unitOfWork.SaveChangesAsync();
-        return true;
-    }
+        public async Task<bool> UpdateAsync(int id, GameUpdateDTO dto)
+        {
+            var entity = await _unitOfWork.Games.GetByIdAsync(id);
+            if (entity == null) return false;
 
-    public async Task<bool> DeleteAsync(int id)
-    {
-        var entity = await _unitOfWork.Games.GetByIdAsync(id);
-        if (entity == null) return false;
+            _mapper.Map(dto, entity);
+            _unitOfWork.Games.Update(entity);
+            await _unitOfWork.SaveChangesAsync();
 
-        _unitOfWork.Games.Delete(entity);
-        await _unitOfWork.SaveChangesAsync();
-        return true;
-    }
+            return true;
+        }
 
-    // Advanced Methods
-    public async Task<IEnumerable<GameReadDto>> GetGamesByDifficultyAsync(string level)
-    {
-        var data = (await _unitOfWork.Games.GetAllAsync()).Where(g => g.DifficultyLevel == level);
-        return _mapper.Map<IEnumerable<GameReadDto>>(data);
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var entity = await _unitOfWork.Games.GetByIdAsync(id);
+            if (entity == null) return false;
+
+            _unitOfWork.Games.Delete(entity);
+            await _unitOfWork.SaveChangesAsync();
+
+            return true;
+        }
+
+        // ====================== Advanced Methods ======================
+        public async Task<IEnumerable<GameReadDto>> GetGamesByCategoryAsync(string category)
+        {
+            if (string.IsNullOrWhiteSpace(category))
+                return Enumerable.Empty<GameReadDto>();
+
+            var games = await _unitOfWork.Games.GetAllAsync();
+
+            var filtered = games
+                .Where(g => g.Category.Equals(category, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            return _mapper.Map<IEnumerable<GameReadDto>>(filtered);
+        }
+
+        public async Task<IEnumerable<GameReadDto>> GetGamesByDifficultyAsync(string difficulty)
+        {
+            if (string.IsNullOrWhiteSpace(difficulty))
+                return Enumerable.Empty<GameReadDto>();
+
+            var games = await _unitOfWork.Games.GetAllAsync();
+
+            var filtered = games
+                .Where(g => g.DifficultyLevel.Equals(difficulty, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            return _mapper.Map<IEnumerable<GameReadDto>>(filtered);
+        }
     }
 }
