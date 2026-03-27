@@ -1,14 +1,13 @@
 ﻿using kidsApp.Application.DTOs.StoryDTOs;
 using kidsApp.Application.DTOs.StoryProgress_DTOs;
 using kidsApp.Application.ServiceManager;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/stories")]
-    //[Authorize]
+    //[Authorize]   
     public class StoriesController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -124,28 +123,32 @@ namespace kidsApp.API.Controllers
 
         // ================= Advanced Endpoints =================
 
-        // GET: api/v1/stories/5/progress
-        [HttpGet("{id:int}/progress")]
-        public async Task<IActionResult> GetStoryProgress(int id)
-        {
-            var progress = await _serviceManager.StoryService.GetStoryProgressByIdAsync(id);
-            return Ok(new
-            {
-                Success = true,
-                Message = "Story progress retrieved successfully",
-                Data = progress
-            });
-        }
+        //// GET: api/v1/stories/5/progress
+        //[HttpGet("{id:int}/progress")]
+        //public async Task<IActionResult> GetStoryProgress(int id)
+        //{
+        //    var progress = await _serviceManager.StoryService.GetStoryProgressByIdAsync(id);
+        //    return Ok(new
+        //    {
+        //        Success = true,
+        //        Message = "Story progress retrieved successfully",
+        //        Data = progress
+        //    });
+        //}
 
-        // GET: api/v1/stories/category/adventure
+        // GET: api/v1/stories/category/{category}
         [HttpGet("category/{category}")]
         public async Task<IActionResult> GetStoriesByCategory(string category)
         {
+            if (string.IsNullOrWhiteSpace(category))
+                return BadRequest(new { Success = false, Message = "Category is required" });
+
             var stories = await _serviceManager.StoryService.GetStoriesByCategoryAsync(category);
+
             return Ok(new
             {
                 Success = true,
-                Message = "Stories retrieved successfully",
+                Message = "Stories retrieved successfully by category",
                 Data = stories
             });
         }

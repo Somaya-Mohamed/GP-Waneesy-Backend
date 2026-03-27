@@ -7,29 +7,43 @@ using System.Threading.Tasks;
 
 namespace kidsApp.Infrastructure.Repositories
 {
-    public class TaskLogRepository : GenericRepository<TaskLog>, IGenericRepository<TaskLog>
+    public class TaskLogRepository : GenericRepository<TaskLog>, ITaskLogRepository
     {
-        private readonly KidsAppDbContext _context;
+        public TaskLogRepository(KidsAppDbContext context) : base(context) { }
 
-        public TaskLogRepository(KidsAppDbContext context) : base(context)
+        public async Task<IEnumerable<TaskLog>> GetAllWithDetailsAsync()
         {
-            _context = context;
-        }
-
-        public async Task<IEnumerable<TaskLog>> GetAllWithRelationsAsync()
-        {
-            return await _context.TaskLogs
+            return await _dbSet
                 .Include(tl => tl.Child)
                 .Include(tl => tl.Task)
                 .ToListAsync();
         }
 
-        public async Task<TaskLog> GetByIdWithRelationsAsync(int id)
+        public async Task<TaskLog?> GetByIdWithDetailsAsync(int id)
         {
-            return await _context.TaskLogs
+            return await _dbSet
                 .Include(tl => tl.Child)
                 .Include(tl => tl.Task)
                 .FirstOrDefaultAsync(tl => tl.Id == id);
+        }
+
+        public async Task<IEnumerable<TaskLog>> GetByTaskIdAsync(int taskId)
+        {
+            return await _dbSet
+                .Include(tl => tl.Child)
+                .Include(tl => tl.Task)
+                .Where(tl => tl.TaskId == taskId)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<TaskLog>> GetByChildIdAsync(int childId)
+        {
+            return await _dbSet
+                .Include(tl => tl.Child)
+                .Include(tl => tl.Task)
+                .Where(tl => tl.ChildId == childId)
+                .OrderByDescending(tl => tl.DateCompleted)
+                .ToListAsync();
         }
     }
 }

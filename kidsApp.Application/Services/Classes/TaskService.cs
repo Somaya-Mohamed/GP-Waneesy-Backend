@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using kidsApp.Application.DTOs.TaskDTOs;
-using kidsApp.Application.DTOs.TaskLogDTOs;
 using kidsApp.Application.Services.Interfaces;
 using kidsApp.Domain.Contracts;
 using kidsApp.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace kidsApp.Application.Services.Classes
+namespace kidsApp.Application.Services
 {
     public class TaskService : ITaskService
     {
@@ -32,12 +35,7 @@ namespace kidsApp.Application.Services.Classes
 
         public async Task<TaskDTO> CreateAsync(CreateTaskDTO dto)
         {
-            var task = new Tasks
-            {
-                Title = dto.Title,
-                Description = dto.Description,
-                Category = dto.Difficulty   // 👈 mapping
-            };
+            var task = _mapper.Map<Tasks>(dto);
 
             await _unitOfWork.Tasks.AddAsync(task);
             await _unitOfWork.SaveChangesAsync();
@@ -50,11 +48,10 @@ namespace kidsApp.Application.Services.Classes
             var task = await _unitOfWork.Tasks.GetByIdAsync(id);
             if (task == null) return false;
 
-            task.Title = dto.Title ?? task.Title;
-            task.Description = dto.Description ?? task.Description;
-            task.Category = dto.Difficulty ?? task.Category;
-
+            _mapper.Map(dto, task);
+            _unitOfWork.Tasks.Update(task);
             await _unitOfWork.SaveChangesAsync();
+
             return true;
         }
 
@@ -65,21 +62,22 @@ namespace kidsApp.Application.Services.Classes
 
             _unitOfWork.Tasks.Delete(task);
             await _unitOfWork.SaveChangesAsync();
+
             return true;
-        }
-
-        public async Task<IEnumerable<TaskLogDTO>> GetTaskLogsByTaskIdAsync(int taskId)
-        {
-            var task = await _unitOfWork.Tasks.GetWithLogsAsync(taskId);
-            if (task == null) return Enumerable.Empty<TaskLogDTO>();
-
-            return _mapper.Map<IEnumerable<TaskLogDTO>>(task.TaskLogs);
         }
 
         public async Task<IEnumerable<TaskDTO>> GetTasksByDifficultyAsync(string difficulty)
         {
-            var tasks = await _unitOfWork.Tasks.GetByCategoryAsync(difficulty);
-            return _mapper.Map<IEnumerable<TaskDTO>>(tasks);
+            if (string.IsNullOrWhiteSpace(difficulty))
+                return Enumerable.Empty<TaskDTO>();
+
+            var tasks = await _unitOfWork.Tasks.GetAllAsync();
+
+            var filtered = tasks
+                .Where(t => t.Difficulty.Equals(difficulty, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            return _mapper.Map<IEnumerable<TaskDTO>>(filtered);
         }
     }
 }

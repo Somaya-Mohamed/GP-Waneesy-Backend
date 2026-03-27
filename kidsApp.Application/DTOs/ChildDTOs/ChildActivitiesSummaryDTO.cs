@@ -24,12 +24,15 @@ namespace kidsApp.Application.DTOs.ChildDTOs
         public int TotalTasks { get; set; }
         public int CompletedTasks { get; set; }
 
+        public int TotalGames { get; set; }
+        public int CompletedGames { get; set; }
+
         public List<RecentActivityDto> RecentActivities { get; set; } = new();
     }
 
     public class RecentActivityDto
     {
-        public string ActivityType { get; set; }   // "Story", "Video", "Task"
+        public string ActivityType { get; set; }   
         public string Title { get; set; }
         public double Progress { get; set; }       
         public DateTime Date { get; set; }

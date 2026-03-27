@@ -1,23 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace kidsApp.Domain.Entities
 {
     public class Game
     {
         public int Id { get; set; }
-        //public int GameId { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Category { get; set; }
-        public string GameLink { get; set; }
-        public string DifficultyLevel { get; set; }
+
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;           
+        public string GameLink { get; set; } = string.Empty;           
+        public string DifficultyLevel { get; set; } = string.Empty;
         public int PointsRewarded { get; set; }
 
-        // Navigation
-        public ICollection<GameScore> Scores { get; set; }
+        // Navigation Property
+        public ICollection<GameScore> Scores { get; set; } = new List<GameScore>();
     }
 }

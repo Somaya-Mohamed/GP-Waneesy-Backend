@@ -2,30 +2,20 @@
 using kidsApp.Domain.Entities;
 using kidsApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace kidsApp.Infrastructure.Repositories
 {
     public class TaskRepository : GenericRepository<Tasks>, ITaskRepository
     {
-        private readonly KidsAppDbContext _context;
-
-        public TaskRepository(KidsAppDbContext context) : base(context)
-        {
-            _context = context;
-        }
+        public TaskRepository(KidsAppDbContext context) : base(context) { }
 
         public async Task<IEnumerable<Tasks>> GetByCategoryAsync(string category)
         {
-            return await _context.Tasks
-                .Where(t => t.Category == category)
+            return await _dbSet
+                .Where(t => t.Category.Equals(category, StringComparison.OrdinalIgnoreCase))
                 .ToListAsync();
-        }
-
-        public async Task<Tasks?> GetWithLogsAsync(int taskId)
-        {
-            return await _context.Tasks
-                .Include(t => t.TaskLogs)
-                .FirstOrDefaultAsync(t => t.Id == taskId);
         }
     }
 }

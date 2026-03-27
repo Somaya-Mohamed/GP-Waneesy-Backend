@@ -19,6 +19,8 @@ namespace kidsApp.Infrastructure.UnitOfWork
         private TaskRepository? _taskRepository;
         private VideoRepository? _videoRepository;
         private VideoActivityRepository? _videoActivityRepository;
+        private TaskLogRepository? _taskLogRepository;
+
 
 
 
@@ -39,11 +41,12 @@ namespace kidsApp.Infrastructure.UnitOfWork
         public IGenericRepository<Story> Stories => new GenericRepository<Story>(_context);
         public IGenericRepository<Game> Games => new GenericRepository<Game>(_context);
         public IGenericRepository<VideoActivity> VideoActivities => new GenericRepository<VideoActivity>(_context);
-        public IGenericRepository<TaskLog> TaskLogs => new GenericRepository<TaskLog>(_context);
         public IGenericRepository<Report> Reports => new GenericRepository<Report>(_context);
         public IGameScoreRepository GameScores => _GameScoreRepository ??= new GameScoreRepository(_context);
 
         public IVideoRepository Videos => _videoRepository ??= new VideoRepository(_context);
+
+        public ITaskLogRepository TaskLogs => _taskLogRepository ??= new TaskLogRepository(_context);
 
         public async Task<int> SaveChangesAsync(CancellationToken ct = default)
             => await _context.SaveChangesAsync(ct);
