@@ -1,7 +1,9 @@
-﻿using kidsApp.Domain.Contracts;
+﻿using kidsApp.Application.DTOs.VideoActivityDTOs;
+using kidsApp.Domain.Contracts;
 using kidsApp.Domain.Entities;
 using kidsApp.Infrastructure.Data;
 using kidsApp.Infrastructure.Repositories;
+using kidsApp.Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 public class VideoRepository : GenericRepository<Video>, IVideoRepository
@@ -13,8 +15,8 @@ public class VideoRepository : GenericRepository<Video>, IVideoRepository
         _context = context;
     }
 
-    
 
+   
     public async Task<IEnumerable<Video>> GetByCategoryAsync(string level)
     {
         return await _context.Videos

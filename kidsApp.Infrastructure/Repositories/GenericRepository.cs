@@ -14,9 +14,10 @@ namespace kidsApp.Infrastructure.Repositories
             _context = context;
             _dbSet = context.Set<T>();
         }
-
-        public async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken ct = default)
-            => await _dbSet.ToListAsync(ct);
+        public virtual async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken ct = default)
+    => await _dbSet.ToListAsync(ct);
+        //public async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken ct = default)
+        //    => await _dbSet.ToListAsync(ct);
 
         public async Task<T?> GetByIdAsync(int id, CancellationToken ct = default)
             => await _dbSet.FindAsync(new object[] { id }, ct);
