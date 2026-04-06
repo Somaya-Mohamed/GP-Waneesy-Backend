@@ -1,4 +1,5 @@
 ﻿using kidsApp.Application.DTOs.VideoActivityDTOs;
+using kidsApp.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,6 +11,7 @@ namespace kidsApp.Application.Services.Interfaces
         Task<VideoActivityDTO> GetByIdAsync(int id);
         Task<VideoActivityDTO> CreateAsync(CreateVideoActivityDTO dto);
         Task<bool> DeleteAsync(int id);
+      
 
         // Advanced Methods
         Task<bool> UpdateProgressAsync(int id, double watchPercent, string status);

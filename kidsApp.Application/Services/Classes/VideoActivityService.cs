@@ -17,15 +17,16 @@ public class VideoActivityService : IVideoActivityService
 
     public async Task<IEnumerable<VideoActivityDTO>> GetAllAsync()
     {
-        var activities = await _unitOfWork.VideoActivitiesRepo.GetAllAsync();
+        var activities = await _unitOfWork.VideoActivitiesRepo.GetAllWithDetailsAsync();
         return _mapper.Map<IEnumerable<VideoActivityDTO>>(activities);
     }
 
     public async Task<VideoActivityDTO> GetByIdAsync(int id)
     {
-        var activity = await _unitOfWork.VideoActivitiesRepo.GetByIdAsync(id);
+        var activity = await _unitOfWork.VideoActivitiesRepo.GetByIdWithDetailsAsync(id);
         return activity == null ? null : _mapper.Map<VideoActivityDTO>(activity);
     }
+
     public async Task<VideoActivityDTO> CreateAsync(CreateVideoActivityDTO dto)
     {
         // Validate Child  
@@ -55,22 +56,6 @@ public class VideoActivityService : IVideoActivityService
         // Map to DTO  
         return _mapper.Map<VideoActivityDTO>(created);
     }
-    //public async Task<VideoActivityDTO> CreateAsync(CreateVideoActivityDTO dto)
-    //{
-    //    var entity = _mapper.Map<VideoActivity>(dto);
-
-    //    entity.Status = "Started";
-    //    entity.WatchedPercent = 0;
-
-    //    await _unitOfWork.VideoActivitiesRepo.AddAsync(entity);
-    //    await _unitOfWork.SaveChangesAsync();
-    //    var created = await _unitOfWork.VideoActivitiesRepo
-    //     .GetByIdWithDetailsAsync(entity.Id);
-
-    //    return _mapper.Map<VideoActivityDTO>(created);
-
-    //    //return _mapper.Map<VideoActivityDTO>(entity);
-    //}
 
     public async Task<bool> DeleteAsync(int id)
     {
@@ -96,13 +81,13 @@ public class VideoActivityService : IVideoActivityService
 
     public async Task<IEnumerable<VideoActivityDTO>> GetByChildIdAsync(int childId)
     {
-        var activities = await _unitOfWork.VideoActivitiesRepo.GetByChildIdAsync(childId);
+        var activities = await _unitOfWork.VideoActivitiesRepo.GetByChildIdWithDetailsAsync(childId);
         return _mapper.Map<IEnumerable<VideoActivityDTO>>(activities);
     }
 
     public async Task<IEnumerable<VideoActivityDTO>> GetProgressByVideoIdAsync(int videoId)
     {
-        var activities = await _unitOfWork.VideoActivitiesRepo.GetByVideoIdAsync(videoId);
+        var activities = await _unitOfWork.VideoActivitiesRepo.GetByVideoIdWithDetailsAsync(videoId);
         return _mapper.Map<IEnumerable<VideoActivityDTO>>(activities);
     }
 }

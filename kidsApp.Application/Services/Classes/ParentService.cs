@@ -65,18 +65,26 @@ public class ParentService : IParentService
     }
 
     // Advanced
+    //public async Task<IEnumerable<ChildSummaryDTO>> GetChildrenSummaryAsync(int parentId)
+    //{
+    //    var parent = await _unitOfWork.Parents.GetParentWithChildren(parentId);
+    //    //var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
+    //    if (parent == null) return Enumerable.Empty<ChildSummaryDTO>();
+
+    //    return parent.Children?.Select(c => new ChildSummaryDTO
+    //    {
+    //        ChildId = c.Id,
+    //        FullName = c.Name,
+    //        Age = c.Age
+    //    }) ?? Enumerable.Empty<ChildSummaryDTO>();
+    //}
     public async Task<IEnumerable<ChildSummaryDTO>> GetChildrenSummaryAsync(int parentId)
     {
         var parent = await _unitOfWork.Parents.GetParentWithChildren(parentId);
-        //var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
         if (parent == null) return Enumerable.Empty<ChildSummaryDTO>();
 
-        return parent.Children?.Select(c => new ChildSummaryDTO
-        {
-            ChildId = c.Id,
-            FullName = c.Name,
-            Age = c.Age
-        }) ?? Enumerable.Empty<ChildSummaryDTO>();
+        // AutoMapper يحول كل الأطفال أوتوماتيكياً
+        return _mapper.Map<IEnumerable<ChildSummaryDTO>>(parent.Children);
     }
 
     public async Task<IEnumerable<ProgressReadDto>> GetWeeklyChildReportsAsync(int parentId)
