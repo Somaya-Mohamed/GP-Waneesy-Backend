@@ -8,5 +8,7 @@
 
         public string? AvatarUrl { get; set; }
         public string? Preferences { get; set; }
+
+        public string PinCode { get; set; } = string.Empty;   
     }
 }

@@ -1,113 +1,139 @@
-﻿using kidsApp.Infrastructure.Data;
-using kidsApp.Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Mvc;
+using kidsApp.Application.DTOs.AuthDTOs;
+using kidsApp.Domain.Contracts;
+using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using System.Security.Claims;
-using kidsApp.Application.DTOs.AuthDTOs;
 
-namespace kidsApp.Api.Controllers
+namespace kidsApp.API.Controllers
 {
-    [Route("api/v1/[controller]")]
+    [Route("api/v1/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _config;
 
-
-        public AuthController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration config)
+        public AuthController(IUnitOfWork unitOfWork, IConfiguration config)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
+            _unitOfWork = unitOfWork;
             _config = config;
         }
 
-        // ===== Login =====
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        // ====================== Parent Login ======================
+        [HttpPost("parent/login")]
+        public async Task<IActionResult> ParentLogin([FromBody] ParentLoginDto dto)
         {
-            var user = await _userManager.FindByEmailAsync(dto.Email);
-            if (user == null)
-                return Unauthorized("Invalid Email");
+            var parent = (await _unitOfWork.Parents.GetAllAsync())
+                .FirstOrDefault(p => p.Email == dto.Email && p.Password == dto.Password);
 
-            var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
-            if (!passwordValid)
-                return Unauthorized("Invalid Password");
+            if (parent == null)
+                return Unauthorized(new { Success = false, Message = "Invalid email or password" });
 
-            var authClaims = new List<Claim>
+            var token = GenerateJwtToken(parent.Id.ToString(), "Parent", parent.FullName, parent.Id);
+
+            return Ok(new
             {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                Success = true,
+                Message = "Parent login successful",
+                Token = token,
+                Role = "Parent",
+                ParentId = parent.Id,
+                FullName = parent.FullName
+            });
+        }
+
+        // ====================== Child Login (PIN Code) ======================
+        [HttpPost("child/login")]
+        public async Task<IActionResult> ChildLogin([FromBody] ChildLoginDto dto)
+        {
+            var child = await _unitOfWork.Children.GetByIdAsync(dto.ChildId);
+
+            if (child == null)
+                return Unauthorized(new { Success = false, Message = "Child not found" });
+
+            if (child.PinCode != dto.PinCode)
+                return Unauthorized(new { Success = false, Message = "Invalid PIN code" });
+
+            var token = GenerateJwtToken(child.Id.ToString(), "Child", child.Name, child.ParentId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Child login successful",
+                Token = token,
+                Role = "Child",
+                ChildId = child.Id,
+                ParentId = child.ParentId,
+                FullName = child.Name
+            });
+        }
+
+        // ====================== Switch Child ======================
+        [HttpPost("switch-child")]
+        public async Task<IActionResult> SwitchChild([FromBody] ChildLoginDto dto)
+        {
+            var child = await _unitOfWork.Children.GetByIdAsync(dto.ChildId);
+
+            if (child == null || child.PinCode != dto.PinCode)
+                return Unauthorized(new { Success = false, Message = "Invalid child or PIN code" });
+
+            var token = GenerateJwtToken(child.Id.ToString(), "Child", child.Name, child.ParentId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Switched to child successfully",
+                Token = token,
+                ChildId = child.Id,
+                ParentId = child.ParentId,
+                FullName = child.Name
+            });
+        }
+
+        // ====================== Admin Login (ثابت في الكود دلوقتي) ======================
+        [HttpPost("admin/login")]
+        public IActionResult AdminLogin([FromBody] AdminLoginDto dto)
+        {
+            if (dto.Email == "admin@waneesy.com" && dto.Password == "waneesy123")
+            {
+                var token = GenerateJwtToken("0", "Admin", "System Admin", 0);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Message = "Admin login successful",
+                    Token = token,
+                    Role = "Admin",
+                    FullName = "System Admin"
+                });
+            }
+
+            return Unauthorized(new { Success = false, Message = "Invalid admin credentials" });
+        }
+
+        private string GenerateJwtToken(string id, string role, string name, int parentId)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, id),
+                new Claim(ClaimTypes.Role, role),
+                new Claim(ClaimTypes.Name, name),
+                new Claim("ParentId", parentId.ToString())
             };
 
-            var roles = await _userManager.GetRolesAsync(user);
-            foreach (var role in roles)
-            {
-                authClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? "super-secret-key-12345"));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
-                claims: authClaims,
-                expires: DateTime.UtcNow.AddMinutes(60),
-                signingCredentials: new SigningCredentials(
-                     new SymmetricSecurityKey(
-                         Encoding.UTF8.GetBytes(_config["Jwt:Key"])
-                 ),
-                 SecurityAlgorithms.HmacSha256
-                )
-             );
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(24),
+                signingCredentials: creds);
 
-            return Ok(new
-            {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo
-            });
-        }
-
-        // ===== Register (Admin only) =====
-        [HttpPost("register")]
-        //[Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
-        {
-            if (await _userManager.FindByEmailAsync(dto.Email) != null)
-                return BadRequest("Email already exists");
-
-            var user = new ApplicationUser
-            {
-                UserName = dto.UserName,
-                Email = dto.Email
-            };
-
-            var result = await _userManager.CreateAsync(user, dto.Password);
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
-
-            // ===== Assign Role =====
-            if (!await _roleManager.RoleExistsAsync(dto.Role))
-            {
-                await _roleManager.CreateAsync(new IdentityRole(dto.Role));
-            }
-
-            await _userManager.AddToRoleAsync(user, dto.Role);
-
-            return Ok(new
-            {
-                user.Id,
-                user.UserName,
-                user.Email,
-                Role = dto.Role
-            });
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
-
-   
-    
-
-    
 }

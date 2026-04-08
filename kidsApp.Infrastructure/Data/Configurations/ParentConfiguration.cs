@@ -28,8 +28,8 @@ namespace kidsApp.Infrastructure.Data.Configurations
             builder.Property(p => p.Country)
                    .HasMaxLength(100);
 
-            builder.Property(p => p.Role)
-                   .HasMaxLength(50);
+            //builder.Property(p => p.Role)
+            //       .HasMaxLength(50);
 
             builder.HasIndex(p => p.Email)
                    .IsUnique(); 

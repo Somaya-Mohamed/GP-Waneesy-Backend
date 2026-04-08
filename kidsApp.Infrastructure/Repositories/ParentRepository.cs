@@ -14,11 +14,19 @@ namespace kidsApp.Infrastructure.Repositories
             _dbSet = context.Set<Parent>();
         }
 
+        public async Task<IEnumerable<Parent>> GetAllWithChildrenAsync()
+        {
+            return await _dbSet
+                .Include(p => p.Children)
+                .ToListAsync();
+        }
+
         public async Task<Parent?> GetParentWithChildren(int parentId)
         {
             return await _dbSet
                 .Include(p => p.Children)
                 .FirstOrDefaultAsync(p => p.Id == parentId);
         }
+
     }
 }

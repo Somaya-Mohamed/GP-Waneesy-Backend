@@ -15,6 +15,7 @@ namespace kidsApp.Domain.Entities
         public string? Gender { get; set; }
         public string? AvatarUrl { get; set; }
         public string? Preferences { get; set; }
+        public string PinCode { get; set; } = string.Empty;
 
         // Foreign Key
         public int ParentId { get; set; }
