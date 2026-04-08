@@ -1,14 +1,12 @@
 ﻿using kidsApp.Application.DTOs.VideoDTOs;
 using kidsApp.Application.DTOs.VideoActivityDTOs;
 using kidsApp.Application.ServiceManager;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/videos")]
-    //[Authorize]
     public class VideosController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -18,7 +16,6 @@ namespace kidsApp.API.Controllers
             _serviceManager = serviceManager;
         }
 
-        // GET: api/v1/videos
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -31,17 +28,12 @@ namespace kidsApp.API.Controllers
             });
         }
 
-        // GET: api/v1/videos/5
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var video = await _serviceManager.VideoService.GetByIdAsync(id);
             if (video == null)
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = "Video not found"
-                });
+                return NotFound(new { Success = false, Message = "Video not found" });
 
             return Ok(new
             {
@@ -51,78 +43,42 @@ namespace kidsApp.API.Controllers
             });
         }
 
-        // POST: api/v1/videos
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateVideoDTO dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Invalid data",
-                    Errors = ModelState
-                });
+                return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
 
             var created = await _serviceManager.VideoService.CreateAsync(dto);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = created.Id },
-                new
-                {
-                    Success = true,
-                    Message = "Video created successfully",
-                    Data = created
-                });
+            return CreatedAtAction(nameof(GetById), new { id = created.Id },
+                new { Success = true, Message = "Video created successfully", Data = created });
         }
 
-        // PUT: api/v1/videos/5
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateVideoDTO dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Invalid data",
-                    Errors = ModelState
-                });
+                return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
 
             var updated = await _serviceManager.VideoService.UpdateAsync(id, dto);
             if (!updated)
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = "Video not found"
-                });
+                return NotFound(new { Success = false, Message = "Video not found" });
 
-            return Ok(new
-            {
-                Success = true,
-                Message = "Video updated successfully"
-            });
+            return Ok(new { Success = true, Message = "Video updated successfully" });
         }
 
-        // DELETE: api/v1/videos/5
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.VideoService.DeleteAsync(id);
             if (!deleted)
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = "Video not found"
-                });
+                return NotFound(new { Success = false, Message = "Video not found" });
 
-            return Ok(new
-            {
-                Success = true,
-                Message = "Video deleted successfully"
-            });
+            return Ok(new { Success = true, Message = "Video deleted successfully" });
         }
 
-        // GET: api/v1/videos/5/activities
+        // GET: api/v1/videos/{id}/activities
         [HttpGet("{id:int}/activities")]
         public async Task<IActionResult> GetVideoActivities(int id)
         {
@@ -135,23 +91,29 @@ namespace kidsApp.API.Controllers
             });
         }
 
-        // GET: api/v1/videos/difficulty/{level}
-        [HttpGet("difficulty/{level}")]
-        public async Task<IActionResult> GetByCategory(string level)
+        // GET: api/v1/videos/category/{category}
+        [HttpGet("category/{category}")]
+        public async Task<IActionResult> GetByCategory(string category)
         {
-            var videos = await _serviceManager.VideoService.GetVideosByCategoryAsync(level);
+            if (string.IsNullOrWhiteSpace(category))
+                return BadRequest(new { Success = false, Message = "Category is required" });
+
+            var videos = await _serviceManager.VideoService.GetVideosByCategoryAsync(category);
             return Ok(new
             {
                 Success = true,
-                Message = "Videos retrieved successfully",
+                Message = "Videos retrieved successfully by category",
                 Data = videos
             });
         }
 
-        // GET: api/v1/videos/top-watched?topCount=5
+        // GET: api/v1/videos/top-watched
         [HttpGet("top-watched")]
         public async Task<IActionResult> GetTopWatched([FromQuery] int topCount = 5)
         {
+            if (topCount <= 0) topCount = 5;
+            if (topCount > 20) topCount = 20;
+
             var topVideos = await _serviceManager.VideoService.GetTopWatchedVideosAsync(topCount);
             return Ok(new
             {

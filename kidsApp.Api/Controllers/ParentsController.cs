@@ -16,83 +16,82 @@ namespace kidsApp.API.Controllers
             _serviceManager = serviceManager;
         }
 
-        // GET: api/v1/parents
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var parents = await _serviceManager.ParentService.GetAllAsync();
-            return Ok(new { Success = true, Data = parents });
+            return Ok(new { Success = true, Message = "Parents retrieved successfully", Data = parents });
         }
 
-        // GET: api/v1/parents/5
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var parent = await _serviceManager.ParentService.GetByIdAsync(id);
             if (parent == null)
-                return NotFound(new { Success = false });
+                return NotFound(new { Success = false, Message = "Parent not found" });
 
-            return Ok(new { Success = true, Data = parent });
+            return Ok(new { Success = true, Message = "Parent retrieved successfully", Data = parent });
         }
 
-        // POST: api/v1/parents
         [HttpPost]
-        public async Task<IActionResult> Create(ParentCreateDto dto)
+        public async Task<IActionResult> Create([FromBody] ParentCreateDto dto)
         {
-            var result = await _serviceManager.ParentService.CreateAsync(dto);
-            return Ok(new { Success = true, Data = result });
+            if (!ModelState.IsValid)
+                return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
+
+            var created = await _serviceManager.ParentService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created.ParentId },
+                new { Success = true, Message = "Parent created successfully", Data = created });
         }
 
-        // PUT: api/v1/parents/5
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, UpdateParentDTO dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateParentDTO dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
+
             var updated = await _serviceManager.ParentService.UpdateAsync(id, dto);
             if (!updated)
-                return NotFound(new { Success = false });
+                return NotFound(new { Success = false, Message = "Parent not found" });
 
-            return Ok(new { Success = true });
+            return Ok(new { Success = true, Message = "Parent updated successfully" });
         }
 
-        // DELETE: api/v1/parents/5
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.ParentService.DeleteAsync(id);
             if (!deleted)
-                return NotFound(new { Success = false });
+                return NotFound(new { Success = false, Message = "Parent not found" });
 
-            return Ok(new { Success = true });
+            return Ok(new { Success = true, Message = "Parent deleted successfully" });
         }
 
-        // ================= Child-style Advanced =================
+        // ================= Advanced Endpoints =================
 
-        // GET: api/v1/parents/5/children
         [HttpGet("{id:int}/children")]
         public async Task<IActionResult> GetChildren(int id)
         {
-            var data = await _serviceManager.ParentService.GetChildrenSummaryAsync(id);
-            return Ok(new { Success = true, Data = data });
+            var children = await _serviceManager.ParentService.GetChildrenSummaryAsync(id);
+            return Ok(new { Success = true, Message = "Children retrieved successfully", Data = children });
         }
 
-        // GET: api/v1/parents/5/weekly-progress
-        [HttpGet("{id:int}/weekly-progress")]
-        public async Task<IActionResult> GetWeeklyProgress(int id)
-        {
-            var data = await _serviceManager.ParentService.GetWeeklyChildReportsAsync(id);
-            return Ok(new { Success = true, Data = data });
-        }
+        //[HttpGet("{id:int}/weekly-progress")]
+        //public async Task<IActionResult> GetWeeklyProgress(int id)
+        //{
+        //    var reports = await _serviceManager.ParentService.GetWeeklyChildReportsAsync(id);
+        //    return Ok(new { Success = true, Message = "Weekly progress retrieved successfully", Data = reports });
+        //}
 
-        // POST: api/v1/parents/login
-        [AllowAnonymous]
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(ParentLoginDTO dto)
-        {
-            var token = await _serviceManager.ParentService.LoginAsync(dto.Email, dto.Password);
-            if (token == null)
-                return Unauthorized(new { Success = false });
+        //[AllowAnonymous]
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Login([FromBody] ParentLoginDTO dto)
+        //{
+        //    var token = await _serviceManager.ParentService.LoginAsync(dto.Email, dto.Password);
+        //    if (token == null)
+        //        return Unauthorized(new { Success = false, Message = "Invalid email or password" });
 
-            return Ok(new { Success = true, Token = token });
-        }
+        //    return Ok(new { Success = true, Message = "Login successful", Token = token });
+        //}
     }
 }

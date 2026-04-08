@@ -104,7 +104,11 @@ namespace kidsApp.Application.Services
                 .Where(sp => sp.ProgressPercent >= 100)
                 .Sum(sp => sp.Story?.PointsRewarded ?? 0) ?? 0;
 
-            return gamePoints + taskPoints + storyPoints;
+            var videoPoints = child.VideoActivities?
+                .Where(v => v.WatchedPercent >= 90)
+                .Sum(v => v.Video?.PointsRewarded ?? 0) ?? 0;
+
+            return gamePoints + taskPoints + storyPoints + videoPoints;
         }
 
         public async Task<double> GetCompletionPercentageAsync(int childId)
@@ -133,6 +137,7 @@ namespace kidsApp.Application.Services
             var child = await _unitOfWork.Children.GetByIdWithDetailsAsync(childId);
             if (child == null) return null;
 
+            //var lastWeek = DateTime.UtcNow.AddDays(-30);
             var lastWeek = DateTime.UtcNow.AddDays(-7);
 
             var weeklyGames = child.GameScores?.Where(g => g.Date >= lastWeek).ToList() ?? new List<GameScore>();
@@ -147,11 +152,14 @@ namespace kidsApp.Application.Services
                 TotalPoints = weeklyGames.Sum(g => g.ScoreValue) +
                              weeklyTasks.Sum(t => t.PointsEarned) +
                              weeklyStories.Where(s => s.ProgressPercent >= 100)
-                                         .Sum(s => s.Story?.PointsRewarded ?? 0),
+                                          .Sum(s => s.Story?.PointsRewarded ?? 0) +
+                             weeklyVideos.Where(v => v.WatchedPercent >= 90)
+                                          .Sum(v => v.Video?.PointsRewarded ?? 0),
+
                 GamesPlayed = weeklyGames.Count,
                 StoriesCompleted = weeklyStories.Count(s => s.ProgressPercent >= 100),
                 TasksCompleted = weeklyTasks.Count(t => t.Status == "Completed"),
-                VideosCompleted = weeklyVideos.Count(v => v.WatchedPercent >= 100)
+                VideosCompleted = weeklyVideos.Count(v => v.WatchedPercent >= 90)
             };
 
             return report;
