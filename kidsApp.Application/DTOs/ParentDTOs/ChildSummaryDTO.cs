@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kidsApp.Application.DTOs.ParentDTOs
+﻿namespace kidsApp.Application.DTOs.ParentDTOs
 {
     public class ChildSummaryDTO
     {
         public int ChildId { get; set; }
-        public string FullName { get; set; }
+        public string FullName { get; set; } = string.Empty;
         public int Age { get; set; }
     }
 }

@@ -4,114 +4,103 @@ using kidsApp.Application.DTOs.ProgressDTOs;
 using kidsApp.Application.Services.Interfaces;
 using kidsApp.Domain.Contracts;
 using kidsApp.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-public class ParentService : IParentService
+namespace kidsApp.Application.Services
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-
-    public ParentService(IUnitOfWork unitOfWork, IMapper mapper)
+    public class ParentService : IParentService
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-    }
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
+        public ParentService(IUnitOfWork unitOfWork, IMapper mapper)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
 
-    // CRUD
-    public async Task<IEnumerable<ParentReadDto>> GetAllAsync()
-    {
-        var data = await _unitOfWork.Parents.GetAllAsync();
-        return _mapper.Map<IEnumerable<ParentReadDto>>(data);
-    }
+        public async Task<IEnumerable<ParentReadDto>> GetAllAsync()
+        {
+            var parents = await _unitOfWork.Parents.GetAllWithChildrenAsync();   
+            return _mapper.Map<IEnumerable<ParentReadDto>>(parents);
+        }
 
-    public async Task<ParentReadDto> GetByIdAsync(int id)
-    {
-        //var entity = await _unitOfWork.Parents.GetByIdAsync(id);
-        var entity = await _unitOfWork.Parents.GetParentWithChildren(id);
+        public async Task<ParentReadDto?> GetByIdAsync(int id)
+        {
+            var parent = await _unitOfWork.Parents.GetParentWithChildren(id);
+            return parent == null ? null : _mapper.Map<ParentReadDto>(parent);
+        }
 
-        return _mapper.Map<ParentReadDto>(entity);
-    }
+        public async Task<ParentReadDto> CreateAsync(ParentCreateDto dto)
+        {
+            var parent = _mapper.Map<Parent>(dto);
 
-    public async Task<ParentReadDto> CreateAsync(ParentCreateDto dto)
-    {
-        var entity = _mapper.Map<Parent>(dto);
-        await _unitOfWork.Parents.AddAsync(entity);
-        await _unitOfWork.SaveChangesAsync();
-        return _mapper.Map<ParentReadDto>(entity);
-    }
+            await _unitOfWork.Parents.AddAsync(parent);
+            await _unitOfWork.SaveChangesAsync();
 
-    public async Task<bool> UpdateAsync(int id, UpdateParentDTO dto)
-    {
-        //var entity = await _unitOfWork.Parents.GetByIdAsync(id);
-        var entity = await _unitOfWork.Parents.GetParentWithChildren(id);
+            return _mapper.Map<ParentReadDto>(parent);
+        }
 
-        if (entity == null) return false;
+        public async Task<bool> UpdateAsync(int id, UpdateParentDTO dto)
+        {
+            var parent = await _unitOfWork.Parents.GetParentWithChildren(id);
+            if (parent == null) return false;
 
-        _mapper.Map(dto, entity);
-        _unitOfWork.Parents.Update(entity);
-        await _unitOfWork.SaveChangesAsync();
-        return true;
-    }
+            _mapper.Map(dto, parent);
+            _unitOfWork.Parents.Update(parent);
+            await _unitOfWork.SaveChangesAsync();
 
-    public async Task<bool> DeleteAsync(int id)
-    {
-        var entity = await _unitOfWork.Parents.GetParentWithChildren(id);
-        //var entity = await _unitOfWork.Parents.GetByIdAsync(id);
-        if (entity == null) return false;
+            return true;
+        }
 
-        _unitOfWork.Parents.Delete(entity);
-        await _unitOfWork.SaveChangesAsync();
-        return true;
-    }
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var parent = await _unitOfWork.Parents.GetParentWithChildren(id);
+            if (parent == null) return false;
 
-    // Advanced
-    //public async Task<IEnumerable<ChildSummaryDTO>> GetChildrenSummaryAsync(int parentId)
-    //{
-    //    var parent = await _unitOfWork.Parents.GetParentWithChildren(parentId);
-    //    //var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
-    //    if (parent == null) return Enumerable.Empty<ChildSummaryDTO>();
+            _unitOfWork.Parents.Delete(parent);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
 
-    //    return parent.Children?.Select(c => new ChildSummaryDTO
-    //    {
-    //        ChildId = c.Id,
-    //        FullName = c.Name,
-    //        Age = c.Age
-    //    }) ?? Enumerable.Empty<ChildSummaryDTO>();
-    //}
-    public async Task<IEnumerable<ChildSummaryDTO>> GetChildrenSummaryAsync(int parentId)
-    {
-        var parent = await _unitOfWork.Parents.GetParentWithChildren(parentId);
-        if (parent == null) return Enumerable.Empty<ChildSummaryDTO>();
+        public async Task<IEnumerable<ChildSummaryDTO>> GetChildrenSummaryAsync(int parentId)
+        {
+            var parent = await _unitOfWork.Parents.GetParentWithChildren(parentId);
+            if (parent == null || parent.Children == null)
+                return Enumerable.Empty<ChildSummaryDTO>();
 
-        // AutoMapper يحول كل الأطفال أوتوماتيكياً
-        return _mapper.Map<IEnumerable<ChildSummaryDTO>>(parent.Children);
-    }
+            return _mapper.Map<IEnumerable<ChildSummaryDTO>>(parent.Children);
+        }
 
-    public async Task<IEnumerable<ProgressReadDto>> GetWeeklyChildReportsAsync(int parentId)
-    {
-        var parent = await _unitOfWork.Parents.GetParentWithChildren(parentId);
-        //var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
-        if (parent == null) return Enumerable.Empty<ProgressReadDto>();
+        public async Task<IEnumerable<ProgressReadDto>> GetWeeklyChildReportsAsync(int parentId)
+        {
+            var parent = await _unitOfWork.Parents.GetParentWithChildren(parentId);
+            if (parent == null || parent.Children == null)
+                return Enumerable.Empty<ProgressReadDto>();
 
-        var lastWeek = DateTime.UtcNow.AddDays(-7);
+            var lastWeek = DateTime.UtcNow.AddDays(-7);
 
-        var reports = parent.Children?
-            .SelectMany(c => c.StoryProgress
-                .Where(p => p.DateCompleted >= lastWeek)
-                .Select(p => _mapper.Map<ProgressReadDto>(p)))
-            ?? Enumerable.Empty<ProgressReadDto>();
+            var reports = parent.Children
+                .SelectMany(c => c.StoryProgress?.Where(p =>
+                    p.LastUpdated >= lastWeek) ?? Enumerable.Empty<StoryProgress>())
+                .Select(p => _mapper.Map<ProgressReadDto>(p))
+                .ToList();
 
-        return reports;
-    }
+            return reports;
+        }
 
-    public async Task<string?> LoginAsync(string email, string password)
-    {
-        var parent = (await _unitOfWork.Parents.GetAllAsync())
-                     .FirstOrDefault(p => p.Email == email && p.Password == password);
+        public async Task<string?> LoginAsync(string email, string password)
+        {
+            var parent = (await _unitOfWork.Parents.GetAllAsync())
+                .FirstOrDefault(p => p.Email == email && p.Password == password);
 
-        if (parent == null) return null;
+            if (parent == null) return null;
 
-        // Return JWT token here (for demo we return placeholder)
-        return "fake-jwt-token-for-demo";
+            // TODO: في المستقبل هترجع JWT Token حقيقي
+            return "demo-jwt-token-for-parent-" + parent.Id;
+        }
     }
 }

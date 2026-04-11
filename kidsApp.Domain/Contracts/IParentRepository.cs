@@ -11,5 +11,8 @@ namespace kidsApp.Domain.Contracts
     {
         Task<Parent?> GetParentWithChildren(int parentId);
 
+        Task<IEnumerable<Parent>> GetAllWithChildrenAsync(); 
+
+
     }
 }

@@ -27,7 +27,7 @@ namespace kidsApp.Application.Mapping
     {
         public MappingProfile() 
         {
-            // ====================== Child Maps ======================
+            // ====================== Child ======================
             CreateMap<Child, ChildReadDTO>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl))
@@ -64,30 +64,21 @@ namespace kidsApp.Application.Mapping
                 .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date));
 
             // ====================== Parent ======================
-            /// Mapping من Parent Entity → ParentReadDto
             CreateMap<Parent, ParentReadDto>()
-    .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.Id))
-    .ForMember(dest => dest.Children, opt => opt.MapFrom(src => src.Children)); // بدل Ignore 
+                .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Children, opt => opt.MapFrom(src => src.Children));
 
-            // Mapping من ParentCreateDto → Parent Entity
             CreateMap<ParentCreateDto, Parent>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore()); // Id هيتحدد تلقائياً من قاعدة البيانات
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
 
-            // Mapping من UpdateParentDTO → Parent Entity
             CreateMap<UpdateParentDTO, Parent>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
-            // Mapping من Parent → ParentLoginDTO
             CreateMap<Parent, ParentLoginDTO>();
+
             CreateMap<Child, ChildSummaryDTO>()
-    .ForMember(dest => dest.ChildId, opt => opt.MapFrom(src => src.Id))
-    .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Name));
-
-
-
-
-
-
+                .ForMember(dest => dest.ChildId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Name));
 
             // ====================== Game ======================
             CreateMap<GameCreateDTO, Game>()
@@ -198,32 +189,33 @@ namespace kidsApp.Application.Mapping
             // ====================== Video ======================
             CreateMap<CreateVideoDTO, Video>()
                 .ForMember(dest => dest.VideoUrl, opt => opt.MapFrom(src => src.Url))
-                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<UpdateVideoDTO, Video>()
                 .ForMember(dest => dest.VideoUrl, opt => opt.MapFrom(src => src.Url))
-                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
             CreateMap<Video, VideoDTO>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title)) // تأكد إن العنوان يرجع
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
-                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.VideoUrl)); // URL الفيديو قابل للتشغيل
-                                                                                       //CreateMap<Video, VideoDTO>()
-                                                                                       //    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                                                                                       //    .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category));
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.VideoUrl))
+                .ForMember(dest => dest.PointsRewarded, opt => opt.MapFrom(src => src.PointsRewarded));
 
+            // ====================== VideoActivity ======================
             CreateMap<VideoActivity, VideoActivityDTO>()
-     .ForMember(dest => dest.ActivityId, opt => opt.MapFrom(src => src.Id))
-     .ForMember(dest => dest.ChildName, opt => opt.MapFrom(src => src.Child != null ? src.Child.Name : "Unknown Child"))
-     .ForMember(dest => dest.VideoTitle, opt => opt.MapFrom(src => src.Video != null ? src.Video.Title : "Unknown Video"))
-     .ForMember(dest => dest.WatchPercent, opt => opt.MapFrom(src => src.WatchedPercent))
-     .ForMember(dest => dest.LastUpdated, opt => opt.MapFrom(src => src.LastUpdated)); // خد القيمة من الـ entity
+                .ForMember(dest => dest.ActivityId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.ChildName, opt => opt.MapFrom(src => src.Child != null ? src.Child.Name : "Unknown Child"))
+                .ForMember(dest => dest.VideoTitle, opt => opt.MapFrom(src => src.Video != null ? src.Video.Title : "Unknown Video"))
+                .ForMember(dest => dest.WatchPercent, opt => opt.MapFrom(src => src.WatchedPercent))  
+                .ForMember(dest => dest.LastUpdated, opt => opt.MapFrom(src => src.LastUpdated ?? DateTime.UtcNow));
 
             CreateMap<CreateVideoActivityDTO, VideoActivity>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(_ => "In Progress"));
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(_ => "In Progress"))
+                .ForMember(dest => dest.WatchedPercent, opt => opt.MapFrom(src => src.WatchPercent))
+                .ForMember(dest => dest.LastUpdated, opt => opt.MapFrom(_ => DateTime.UtcNow));
 
             // ===== Admin User =====
             CreateMap<ApplicationUser, AdminUserDTO>();

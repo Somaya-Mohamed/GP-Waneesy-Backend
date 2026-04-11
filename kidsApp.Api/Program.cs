@@ -30,7 +30,7 @@ namespace kidsApp.Api
                                      ?? throw new InvalidOperationException("Connection string 'Connection' not found.")));
 
             // =========================
-            // Identity (مع DbContext عادي)
+            // Identity 
             // =========================
             builder.Services
                 .AddIdentity<ApplicationUser, IdentityRole>()
@@ -135,12 +135,19 @@ namespace kidsApp.Api
             var app = builder.Build();
 
             // ====================== Middleware Pipeline ======================
-            if (app.Environment.IsDevelopment())
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI();
+            //    //(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "KidsApp API v1"));
+            //}
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-                //(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "KidsApp API v1"));
-            }
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "KidsApp API v1");
+                c.RoutePrefix = string.Empty;
+            });
 
             app.UseHttpsRedirection();
 

@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace kidsApp.Domain.Entities
 {
     public class Video
     {
         public int Id { get; set; }
-        //public int VideoId { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Category { get; set; }
-        /// <summary>
-        /// //duration will deleted
-        /// </summary>
-        //public string Duration { get; set; }
-        public string VideoUrl { get; set; }
+
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+
+        public string VideoUrl { get; set; } = string.Empty;   
+
+        public int PointsRewarded { get; set; }
 
         // Navigation
-        public ICollection<VideoActivity> Activities { get; set; }
+        public ICollection<VideoActivity> Activities { get; set; } = new List<VideoActivity>();
     }
 }
