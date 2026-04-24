@@ -5,6 +5,8 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using kidsApp.Domain.Entities;
 
 namespace kidsApp.API.Controllers
 {
@@ -112,7 +114,101 @@ namespace kidsApp.API.Controllers
 
             return Unauthorized(new { Success = false, Message = "Invalid admin credentials" });
         }
+        //Get Current User(ME)
+        [HttpGet("me")]
+        [Authorize]
+        public IActionResult GetCurrentUser()
+        {
+            var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var name = User.FindFirst(ClaimTypes.Name)?.Value;
 
+            return Ok(new
+            {
+                Id = id,
+                Role = role,
+                FullName = name
+            });
+        }
+
+        //Get My Children(Parent Only)
+        [HttpGet("my-children")]
+        [Authorize(Roles = "Parent")]
+        public async Task<IActionResult> GetMyChildren()
+        {
+            var parentId = int.Parse(User.FindFirst("ParentId").Value);
+
+            var children = (await _unitOfWork.Children.GetAllAsync())
+                .Where(c => c.ParentId == parentId)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Name,
+                    c.Age
+                });
+
+            return Ok(new
+            {
+                Success = true,
+                Data = children
+            });
+        }
+        //Change Password(Parent)
+        [HttpPost("change-password")]
+        [Authorize(Roles = "Parent")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+        {
+            var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
+
+            if (parent == null)
+                return NotFound(new { Success = false, Message = "Parent not found" });
+
+            if (parent.Password != dto.OldPassword)
+                return BadRequest(new { Success = false, Message = "Old password is incorrect" });
+
+            parent.Password = dto.NewPassword;
+
+            await _unitOfWork.CompleteAsync();
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Password changed successfully"
+            });
+        }
+        //Delete Account(Parent)
+        [HttpDelete("delete-account")]
+        [Authorize(Roles = "Parent")]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
+
+            if (parent == null)
+                return NotFound();
+
+            // ممكن هنا كمان تمسح children لو موجودين
+            var children = (await _unitOfWork.Children.GetAllAsync())
+                .Where(c => c.ParentId == parentId);
+
+            foreach (var child in children)
+            {
+                _unitOfWork.Children.Delete(child);
+            }
+
+            _unitOfWork.Parents.Delete(parent);
+
+            await _unitOfWork.CompleteAsync();
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Account deleted successfully"
+            });
+        }
         private string GenerateJwtToken(string id, string role, string name, int parentId)
         {
             var claims = new List<Claim>

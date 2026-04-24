@@ -16,6 +16,7 @@ namespace kidsApp.Domain.Contracts
         IVideoActivityRepository VideoActivitiesRepo { get; }
 
         ITaskRepository Tasks { get; }
+        Task<int> CompleteAsync();
         ITaskLogRepository TaskLogs { get; }           
 
         IGameScoreRepository GameScores { get; }
