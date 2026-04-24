@@ -29,6 +29,9 @@ namespace kidsApp.Application.ServiceManager
         public IVideoService VideoService { get; }
         public IVideoActivityService VideoActivityService { get; }
         public IAdminService AdminService { get; }
+        public IArticleService ArticleService { get; }
+
+
 
         //public ServiceManager(IUnitOfWork unitOfWork, IMapper mapper, IAdminService adminService)
         public ServiceManager(
@@ -42,7 +45,7 @@ namespace kidsApp.Application.ServiceManager
             GameService = new GameService(unitOfWork, mapper);
             GameScoreService = new GameScoreService(unitOfWork, mapper);
             VideoService = new VideoService(unitOfWork, mapper);
-
+            ArticleService = new ArticleService(unitOfWork, mapper);
             StoryService = new StoryService(unitOfWork, mapper);
             StoryProgressService = new StoryProgressService(unitOfWork, mapper);
             TaskService = new TaskService(unitOfWork, mapper);

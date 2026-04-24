@@ -37,6 +37,7 @@ namespace kidsApp.Infrastructure.Data
         public DbSet<TaskLog> TaskLogs { get; set; }
 
         public DbSet<Report> Reports { get; set; }
+        public DbSet<Article> Articles { get; set; }
         // ===== Identity Tables =====
         public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<IdentityRole> Roles { get; set; }
