@@ -135,19 +135,21 @@ namespace kidsApp.Api
             var app = builder.Build();
 
             // ====================== Middleware Pipeline ======================
-            //if (app.Environment.IsDevelopment())
-            //{
-            //    app.UseSwagger();
-            //    app.UseSwaggerUI();
-            //    //(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "KidsApp API v1"));
-            //}
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
+            if (app.Environment.IsDevelopment())
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "KidsApp API v1");
-                c.RoutePrefix = string.Empty;
-            });
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+            else
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "KidsApp API v1");
+                    c.RoutePrefix = string.Empty;
+                });
+            }
 
             app.UseHttpsRedirection();
 
