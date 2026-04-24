@@ -20,6 +20,7 @@ namespace kidsApp.Infrastructure.UnitOfWork
         private VideoRepository? _videoRepository;
         private VideoActivityRepository? _videoActivityRepository;
         private TaskLogRepository? _taskLogRepository;
+        private ArticleRepository? _articleRepository;
 
 
 
@@ -28,7 +29,8 @@ namespace kidsApp.Infrastructure.UnitOfWork
         {
             _context = context;
         }
-
+        public IGenericRepository<Article> Articles
+    => _articleRepository ??= new ArticleRepository(_context);
         public IChildRepository Children => _childRepository ??= new ChildRepository(_context);
         public IParentRepository Parents => _parentRepository ??= new ParentRepository(_context);
         public IStoryProgressRepository StoryProgress

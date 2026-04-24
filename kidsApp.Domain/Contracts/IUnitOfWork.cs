@@ -10,7 +10,7 @@ namespace kidsApp.Domain.Contracts
         // Repositories
         IChildRepository Children { get; }
         IParentRepository Parents { get; }
-
+        IGenericRepository<Article> Articles { get; }
         IStoryProgressRepository StoryProgress { get; }
         IVideoRepository Videos { get; }
         IVideoActivityRepository VideoActivitiesRepo { get; }
