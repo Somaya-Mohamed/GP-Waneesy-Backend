@@ -10,7 +10,7 @@ namespace kidsApp.API.Controllers
 {
     [Route("api/v1/children")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ChildrenController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -22,6 +22,8 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/children
         [HttpGet]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> GetAll()
         {
             var children = await _serviceManager.ChildService.GetAllAsync();
@@ -30,6 +32,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/children/5
         [HttpGet("{id:int}")]
+        [Authorize(Roles = "Admin,Parent")]
         public async Task<IActionResult> GetById(int id)
         {
             var child = await _serviceManager.ChildService.GetByIdAsync(id);
@@ -41,6 +44,8 @@ namespace kidsApp.API.Controllers
 
         // POST: api/v1/children
         [HttpPost]
+        [Authorize(Roles = "Parent")]
+
         public async Task<IActionResult> Create([FromBody] ChildCreateDTO dto)
         {
             if (!ModelState.IsValid)
@@ -57,6 +62,8 @@ namespace kidsApp.API.Controllers
 
         // PUT: api/v1/children/5
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Parent")]
+
         public async Task<IActionResult> Update(int id, [FromBody] ChildUpdateDto dto)
         {
             if (!ModelState.IsValid)
@@ -71,6 +78,7 @@ namespace kidsApp.API.Controllers
 
         // DELETE: api/v1/children/5
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin,Parent")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.ChildService.DeleteAsync(id);
@@ -84,6 +92,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/children/5/weekly-report
         [HttpGet("{id:int}/weekly-report")]
+        [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetWeeklyReport(int id)
         {
             var report = await _serviceManager.ChildService.GetWeeklyReportAsync(id);
@@ -101,6 +110,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/children/5/activities-summary   
         [HttpGet("{id:int}/activities-summary")]
+        [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetActivitiesSummary(int id)
         {
             var summary = await _serviceManager.ChildService.GetChildActivitiesSummaryAsync(id);
@@ -118,6 +128,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/children/5/top-scores
         [HttpGet("{id:int}/top-scores")]
+        [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetTopScores(int id, [FromQuery] int topCount = 5)
         {
             if (topCount <= 0) topCount = 5;
@@ -130,6 +141,7 @@ namespace kidsApp.API.Controllers
 
         // POST: api/v1/children/5/avatar   
         [HttpPost("{id:int}/avatar")]
+        [Authorize(Roles = "Parent")]
         public async Task<IActionResult> UploadAvatar(int id, [FromForm] ChildAvatarUploadDto dto)
         {
             if (dto.AvatarImage == null || dto.AvatarImage.Length == 0)

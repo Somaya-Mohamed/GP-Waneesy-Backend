@@ -7,7 +7,7 @@ namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/video-activities")]
-    //[Authorize]
+    [Authorize]
 
     public class VideoActivitiesController : ControllerBase
     {
@@ -20,6 +20,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/video-activities
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var activities = await _serviceManager.VideoActivityService.GetAllAsync();
@@ -33,6 +34,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/video-activities/5
         [HttpGet("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(int id)
         {
             var activity = await _serviceManager.VideoActivityService.GetByIdAsync(id);
@@ -53,6 +55,7 @@ namespace kidsApp.API.Controllers
 
         // POST: api/v1/video-activities
         [HttpPost]
+        [Authorize(Roles = "Child")]
         public async Task<IActionResult> Create([FromBody] CreateVideoActivityDTO dto)
         {
             if (!ModelState.IsValid)
@@ -78,6 +81,7 @@ namespace kidsApp.API.Controllers
 
         // DELETE: api/v1/video-activities/5
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.VideoActivityService.DeleteAsync(id);
@@ -97,6 +101,7 @@ namespace kidsApp.API.Controllers
 
         // PUT: api/v1/video-activities/5/update-progress
         [HttpPut("{id:int}/update-progress")]
+        [Authorize(Roles = "Child")]
         public async Task<IActionResult> UpdateProgress(int id, [FromBody] UpdateVideoProgressDTO dto)
         {
             var updated = await _serviceManager.VideoActivityService.UpdateProgressAsync(id, dto.WatchPercent, dto.Status);
@@ -116,6 +121,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/video-activities/child/{childId}  (optional)
         [HttpGet("child/{childId:int}")]
+        [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetByChild(int childId)
         {
             var activities = await _serviceManager.VideoActivityService.GetByChildIdAsync(childId);
@@ -129,6 +135,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/video-activities/video/{videoId}/progress
         [HttpGet("video/{videoId:int}/progress")]
+        [Authorize(Roles = "Child,Admin")]
         public async Task<IActionResult> GetProgressByVideo(int videoId)
         {
             var progress = await _serviceManager.VideoActivityService.GetProgressByVideoIdAsync(videoId);

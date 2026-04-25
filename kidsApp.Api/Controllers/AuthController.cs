@@ -25,6 +25,7 @@ namespace kidsApp.API.Controllers
 
         // ====================== Parent Login ======================
         [HttpPost("parent/login")]
+        [AllowAnonymous]
         public async Task<IActionResult> ParentLogin([FromBody] ParentLoginDto dto)
         {
             var parent = (await _unitOfWork.Parents.GetAllAsync())
@@ -48,6 +49,7 @@ namespace kidsApp.API.Controllers
 
         // ====================== Child Login (PIN Code) ======================
         [HttpPost("child/login")]
+        [AllowAnonymous]
         public async Task<IActionResult> ChildLogin([FromBody] ChildLoginDto dto)
         {
             var child = await _unitOfWork.Children.GetByIdAsync(dto.ChildId);
@@ -96,6 +98,7 @@ namespace kidsApp.API.Controllers
 
         // ====================== Admin Login (ثابت في الكود دلوقتي) ======================
         [HttpPost("admin/login")]
+        [AllowAnonymous]
         public IActionResult AdminLogin([FromBody] AdminLoginDto dto)
         {
             if (dto.Email == "admin@waneesy.com" && dto.Password == "waneesy123")

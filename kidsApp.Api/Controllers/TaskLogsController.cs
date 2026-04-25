@@ -1,11 +1,13 @@
 ﻿using kidsApp.Application.DTOs.TaskLogDTOs;
 using kidsApp.Application.ServiceManager;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/task-logs")]
+    [Authorize]
     public class TaskLogsController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -16,6 +18,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var logs = await _serviceManager.TaskLogService.GetAllAsync();
@@ -23,6 +26,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(int id)
         {
             var log = await _serviceManager.TaskLogService.GetByIdAsync(id);
@@ -33,6 +37,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Child")]
         public async Task<IActionResult> Create([FromBody] CreateTaskLogDTO dto)
         {
             if (!ModelState.IsValid)
@@ -45,6 +50,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.TaskLogService.DeleteAsync(id);
@@ -56,6 +62,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/task-logs/task/{taskId}
         [HttpGet("task/{taskId:int}")]
+        [Authorize(Roles = "Child,Admin")]
         public async Task<IActionResult> GetByTaskId(int taskId)
         {
             var logs = await _serviceManager.TaskLogService.GetTaskLogsByTaskIdAsync(taskId);
@@ -64,6 +71,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/task-logs/child/{childId}   ← مهم جدًا
         [HttpGet("child/{childId:int}")]
+        [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetByChildId(int childId)
         {
             var logs = await _serviceManager.TaskLogService.GetTaskLogsByChildIdAsync(childId);
