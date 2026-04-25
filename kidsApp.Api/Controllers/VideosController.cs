@@ -1,8 +1,8 @@
 ﻿using kidsApp.Application.DTOs.VideoDTOs;
 using kidsApp.Application.DTOs.VideoActivityDTOs;
 using kidsApp.Application.ServiceManager;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace kidsApp.API.Controllers
 {
@@ -18,6 +18,7 @@ namespace kidsApp.API.Controllers
             _serviceManager = serviceManager;
         }
 
+        // GET: api/v1/videos
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetAll()
@@ -31,6 +32,7 @@ namespace kidsApp.API.Controllers
             });
         }
 
+        // GET: api/v1/videos/5
         [HttpGet("{id:int}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
@@ -47,6 +49,7 @@ namespace kidsApp.API.Controllers
             });
         }
 
+        // POST: api/v1/videos
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateVideoDTO dto)
@@ -60,6 +63,7 @@ namespace kidsApp.API.Controllers
                 new { Success = true, Message = "Video created successfully", Data = created });
         }
 
+        // PUT: api/v1/videos/5
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateVideoDTO dto)
@@ -74,6 +78,7 @@ namespace kidsApp.API.Controllers
             return Ok(new { Success = true, Message = "Video updated successfully" });
         }
 
+        // DELETE: api/v1/videos/5
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)

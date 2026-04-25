@@ -2,6 +2,7 @@
 using kidsApp.Application.ServiceManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace kidsApp.API.Controllers
 {
@@ -17,14 +18,21 @@ namespace kidsApp.API.Controllers
             _serviceManager = serviceManager;
         }
 
+        // GET: api/v1/game-scores
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var scores = await _serviceManager.GameScoreService.GetAllAsync();
-            return Ok(new { Success = true, Message = "Game scores retrieved successfully", Data = scores });
+            return Ok(new
+            {
+                Success = true,
+                Message = "Game scores retrieved successfully",
+                Data = scores
+            });
         }
 
+        // GET: api/v1/game-scores/5
         [HttpGet("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(int id)
@@ -33,9 +41,16 @@ namespace kidsApp.API.Controllers
             if (score == null)
                 return NotFound(new { Success = false, Message = "Game score not found" });
 
-            return Ok(new { Success = true, Message = "Game score retrieved successfully", Data = score });
+            return Ok(new
+            {
+                Success = true,
+                Message = "Game score retrieved successfully",
+                Data = score
+            });
         }
 
+        // POST: api/v1/game-scores
+        // Child يقدر يضيف score لنفسه بس
         [HttpPost]
         [Authorize(Roles = "Child")]
         public async Task<IActionResult> Create([FromBody] GameScoreCreateDTO dto)
@@ -43,10 +58,24 @@ namespace kidsApp.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
 
+            var childId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            // Child مينفعش يضيف score باسم child تاني
+            if (dto.ChildId != childId)
+                return Forbid();
+
             var result = await _serviceManager.GameScoreService.CreateAsync(dto);
-            return Ok(new { Success = true, Message = "Game score created successfully", Data = result });
+
+            return CreatedAtAction(nameof(GetById), new { id = result.ScoreId },
+                new
+                {
+                    Success = true,
+                    Message = "Game score created successfully",
+                    Data = result
+                });
         }
 
+        // PUT: api/v1/game-scores/5
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] GameScoreUpdateDTO dto)
@@ -58,9 +87,14 @@ namespace kidsApp.API.Controllers
             if (!updated)
                 return NotFound(new { Success = false, Message = "Game score not found" });
 
-            return Ok(new { Success = true, Message = "Game score updated successfully" });
+            return Ok(new
+            {
+                Success = true,
+                Message = "Game score updated successfully"
+            });
         }
 
+        // DELETE: api/v1/game-scores/5
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
@@ -69,10 +103,14 @@ namespace kidsApp.API.Controllers
             if (!deleted)
                 return NotFound(new { Success = false, Message = "Game score not found" });
 
-            return Ok(new { Success = true, Message = "Game score deleted successfully" });
+            return Ok(new
+            {
+                Success = true,
+                Message = "Game score deleted successfully"
+            });
         }
 
-        // Advanced Endpoints
+        // GET: api/v1/game-scores/game/{gameId}
         [HttpGet("game/{gameId:int}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetByGameId(int gameId)
@@ -81,14 +119,31 @@ namespace kidsApp.API.Controllers
             return Ok(new { Success = true, Message = "Scores by game retrieved successfully", Data = scores });
         }
 
+        // GET: api/v1/game-scores/child/{childId}
+        // Parent يشوف scores أولاده بس
         [HttpGet("child/{childId:int}")]
         [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetByChildId(int childId)
         {
+            var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var isOwner = await _serviceManager.ChildService
+                .IsChildBelongsToParentAsync(childId, parentId);
+
+            if (!isOwner)
+                return Forbid();
+
             var scores = await _serviceManager.GameScoreService.GetScoresByChildIdAsync(childId);
-            return Ok(new { Success = true, Message = "Scores by child retrieved successfully", Data = scores });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Scores by child retrieved successfully",
+                Data = scores
+            });
         }
 
+        // GET: api/v1/game-scores/top/{count}
         [HttpGet("top/{count:int}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetTopScores(int count)
@@ -97,7 +152,12 @@ namespace kidsApp.API.Controllers
             if (count > 50) count = 50;
 
             var scores = await _serviceManager.GameScoreService.GetTopScoresAsync(count);
-            return Ok(new { Success = true, Message = "Top scores retrieved successfully", Data = scores });
+            return Ok(new
+            {
+                Success = true,
+                Message = "Top scores retrieved successfully",
+                Data = scores
+            });
         }
     }
 }

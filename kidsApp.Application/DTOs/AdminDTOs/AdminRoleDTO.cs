@@ -1,11 +1,9 @@
-﻿namespace kidsApp.Application.DTOs.AdminDTOs
+﻿
+namespace kidsApp.Application.DTOs.AdminDTOs
 {
     public class AdminRoleDTO
     {
-        public int Id { get; set; }
+        public string Id { get; set; }   // Identity بيحفظ Role ID كـ GUID string
         public string Name { get; set; }
-        public string Role { get; set; }
-
     }
 }
- //for returnninf role data

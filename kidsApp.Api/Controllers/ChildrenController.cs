@@ -1,10 +1,8 @@
 ﻿using kidsApp.Application.DTOs.ChildDTOs;
-using kidsApp.Application.DTOs.ProgressDTOs;
 using kidsApp.Application.ServiceManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace kidsApp.API.Controllers
 {
@@ -20,10 +18,20 @@ namespace kidsApp.API.Controllers
             _serviceManager = serviceManager;
         }
 
+        // Helper: يتأكد إن الـ Parent الحالي هو صاحب الـ child ده
+        // لو مش Parent (يعني Admin) → يرجع true تلقائيًا
+        private async Task<bool> IsParentOwnerAsync(int childId)
+        {
+            if (!User.IsInRole("Parent"))
+                return true;
+
+            var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            return await _serviceManager.ChildService.IsChildBelongsToParentAsync(childId, parentId);
+        }
+
         // GET: api/v1/children
         [HttpGet]
         [Authorize(Roles = "Admin")]
-
         public async Task<IActionResult> GetAll()
         {
             var children = await _serviceManager.ChildService.GetAllAsync();
@@ -35,7 +43,11 @@ namespace kidsApp.API.Controllers
         [Authorize(Roles = "Admin,Parent")]
         public async Task<IActionResult> GetById(int id)
         {
+            if (!await IsParentOwnerAsync(id))
+                return Forbid();
+
             var child = await _serviceManager.ChildService.GetByIdAsync(id);
+
             if (child == null)
                 return NotFound(new { Success = false, Message = "Child not found" });
 
@@ -44,15 +56,19 @@ namespace kidsApp.API.Controllers
 
         // POST: api/v1/children
         [HttpPost]
-        [Authorize(Roles = "Parent")]
-
+        [Authorize(Roles = "Admin,Parent")]
         public async Task<IActionResult> Create([FromBody] ChildCreateDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
 
-            if (dto.ParentId <= 0)
-                return BadRequest(new { Success = false, Message = "ParentId is required and must be valid" });
+            // Parent مينفعش يضيف child لـ parent تاني
+            if (User.IsInRole("Parent"))
+            {
+                var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                if (dto.ParentId != parentId)
+                    return Forbid();
+            }
 
             var createdChild = await _serviceManager.ChildService.CreateAsync(dto);
 
@@ -62,14 +78,17 @@ namespace kidsApp.API.Controllers
 
         // PUT: api/v1/children/5
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Parent")]
-
+        [Authorize(Roles = "Admin,Parent")]
         public async Task<IActionResult> Update(int id, [FromBody] ChildUpdateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
 
+            if (!await IsParentOwnerAsync(id))
+                return Forbid();
+
             var updated = await _serviceManager.ChildService.UpdateAsync(id, dto);
+
             if (!updated)
                 return NotFound(new { Success = false, Message = "Child not found" });
 
@@ -81,49 +100,49 @@ namespace kidsApp.API.Controllers
         [Authorize(Roles = "Admin,Parent")]
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsParentOwnerAsync(id))
+                return Forbid();
+
             var deleted = await _serviceManager.ChildService.DeleteAsync(id);
+
             if (!deleted)
                 return NotFound(new { Success = false, Message = "Child not found" });
 
             return Ok(new { Success = true, Message = "Child deleted successfully" });
         }
 
-        // ====================== Advanced Endpoints ======================
+        // ====================== Advanced ======================
 
         // GET: api/v1/children/5/weekly-report
         [HttpGet("{id:int}/weekly-report")]
         [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetWeeklyReport(int id)
         {
+            if (!await IsParentOwnerAsync(id))
+                return Forbid();
+
             var report = await _serviceManager.ChildService.GetWeeklyReportAsync(id);
 
             if (report == null)
                 return NotFound(new { Success = false, Message = "Child not found or no report available" });
 
-            return Ok(new
-            {
-                Success = true,
-                Message = "Weekly report retrieved successfully",
-                Data = report
-            });
+            return Ok(new { Success = true, Message = "Weekly report retrieved successfully", Data = report });
         }
 
-        // GET: api/v1/children/5/activities-summary   
+        // GET: api/v1/children/5/activities-summary
         [HttpGet("{id:int}/activities-summary")]
         [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetActivitiesSummary(int id)
         {
+            if (!await IsParentOwnerAsync(id))
+                return Forbid();
+
             var summary = await _serviceManager.ChildService.GetChildActivitiesSummaryAsync(id);
 
             if (summary == null)
                 return NotFound(new { Success = false, Message = "Child not found" });
 
-            return Ok(new
-            {
-                Success = true,
-                Message = "Activities summary retrieved successfully",
-                Data = summary
-            });
+            return Ok(new { Success = true, Message = "Activities summary retrieved successfully", Data = summary });
         }
 
         // GET: api/v1/children/5/top-scores
@@ -131,40 +150,46 @@ namespace kidsApp.API.Controllers
         [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetTopScores(int id, [FromQuery] int topCount = 5)
         {
+            if (!await IsParentOwnerAsync(id))
+                return Forbid();
+
             if (topCount <= 0) topCount = 5;
             if (topCount > 50) topCount = 50;
 
             var topScores = await _serviceManager.ChildService.GetTopScoresAsync(id, topCount);
+
             return Ok(new { Success = true, Message = "Top scores retrieved successfully", Data = topScores });
         }
 
-
-        // POST: api/v1/children/5/avatar   
+        // POST: api/v1/children/5/avatar
         [HttpPost("{id:int}/avatar")]
         [Authorize(Roles = "Parent")]
         public async Task<IActionResult> UploadAvatar(int id, [FromForm] ChildAvatarUploadDto dto)
         {
+            if (!await IsParentOwnerAsync(id))
+                return Forbid();
+
             if (dto.AvatarImage == null || dto.AvatarImage.Length == 0)
                 return BadRequest(new { Success = false, Message = "No avatar image uploaded" });
 
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
             var extension = Path.GetExtension(dto.AvatarImage.FileName).ToLower();
+
             if (!allowedExtensions.Contains(extension))
                 return BadRequest(new { Success = false, Message = "Only jpg, jpeg, png, webp allowed" });
 
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "avatars");
+
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
-            var uniqueFileName = $"child_{id}_{Guid.NewGuid()}{extension}";
-            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+            var fileName = $"child_{id}_{Guid.NewGuid()}{extension}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
-            {
                 await dto.AvatarImage.CopyToAsync(stream);
-            }
 
-            var avatarUrl = $"/avatars/{uniqueFileName}";   
+            var avatarUrl = $"/avatars/{fileName}";
 
             var updateDto = new ChildUpdateDto { AvatarUrl = avatarUrl };
             var updated = await _serviceManager.ChildService.UpdateAsync(id, updateDto);
@@ -175,10 +200,9 @@ namespace kidsApp.API.Controllers
             return Ok(new
             {
                 Success = true,
-                Message = "Avatar uploaded and updated successfully",
+                Message = "Avatar uploaded successfully",
                 Data = new { AvatarUrl = avatarUrl }
             });
         }
-
     }
 }

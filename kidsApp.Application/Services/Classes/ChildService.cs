@@ -5,6 +5,7 @@ using kidsApp.Application.DTOs.ProgressDTOs;
 using kidsApp.Application.Services.Interfaces;
 using kidsApp.Domain.Contracts;
 using kidsApp.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -272,5 +273,17 @@ namespace kidsApp.Application.Services
 
             return topScores;
         }
+
+        public async Task<bool> IsChildBelongsToParentAsync(int childId, int parentId)
+        {
+            var child = await _unitOfWork.Children.GetByIdAsync(childId);
+
+            if (child == null)
+                return false;
+
+            return child.ParentId == parentId;
+        }
+
+
     }
 }

@@ -2,13 +2,12 @@
 using kidsApp.Application.ServiceManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/games")]
-    [AllowAnonymous]
+    [Authorize]
     public class GamesController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -18,14 +17,18 @@ namespace kidsApp.API.Controllers
             _serviceManager = serviceManager;
         }
 
+        // GET: api/v1/games
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var games = await _serviceManager.GameService.GetAllAsync();
             return Ok(new { Success = true, Message = "Games retrieved successfully", Data = games });
         }
 
+        // GET: api/v1/games/5
         [HttpGet("{id:int}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
         {
             var game = await _serviceManager.GameService.GetByIdAsync(id);
@@ -35,6 +38,7 @@ namespace kidsApp.API.Controllers
             return Ok(new { Success = true, Message = "Game retrieved successfully", Data = game });
         }
 
+        // POST: api/v1/games
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] GameCreateDTO dto)
@@ -51,6 +55,7 @@ namespace kidsApp.API.Controllers
                 new { Success = true, Message = "Game created successfully", Data = createdGame });
         }
 
+        // PUT: api/v1/games/5
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] GameUpdateDTO dto)
@@ -65,6 +70,7 @@ namespace kidsApp.API.Controllers
             return Ok(new { Success = true, Message = "Game updated successfully" });
         }
 
+        // DELETE: api/v1/games/5
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
@@ -78,13 +84,16 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/games/category/{category}
         [HttpGet("category/{category}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetByCategory(string category, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (string.IsNullOrWhiteSpace(category))
                 return BadRequest(new { Success = false, Message = "Category is required" });
 
-            var games = await _serviceManager.GameService.GetGamesByCategoryAsync(category);
+            if (page <= 0) page = 1;
+            if (pageSize <= 0 || pageSize > 50) pageSize = 10;
 
+            var games = (await _serviceManager.GameService.GetGamesByCategoryAsync(category)).ToList();
             var paged = games.Skip((page - 1) * pageSize).Take(pageSize);
 
             return Ok(new
@@ -93,20 +102,23 @@ namespace kidsApp.API.Controllers
                 Message = "Games retrieved successfully by category",
                 Page = page,
                 PageSize = pageSize,
-                Total = games.Count(),
+                Total = games.Count,
                 Data = paged
             });
         }
 
         // GET: api/v1/games/difficulty/{level}
         [HttpGet("difficulty/{level}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetByDifficulty(string level, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (string.IsNullOrWhiteSpace(level))
                 return BadRequest(new { Success = false, Message = "Difficulty level is required" });
 
-            var games = await _serviceManager.GameService.GetGamesByDifficultyAsync(level);
+            if (page <= 0) page = 1;
+            if (pageSize <= 0 || pageSize > 50) pageSize = 10;
 
+            var games = (await _serviceManager.GameService.GetGamesByDifficultyAsync(level)).ToList();
             var paged = games.Skip((page - 1) * pageSize).Take(pageSize);
 
             return Ok(new
@@ -115,7 +127,7 @@ namespace kidsApp.API.Controllers
                 Message = "Games retrieved successfully by difficulty",
                 Page = page,
                 PageSize = pageSize,
-                Total = games.Count(),
+                Total = games.Count,
                 Data = paged
             });
         }
