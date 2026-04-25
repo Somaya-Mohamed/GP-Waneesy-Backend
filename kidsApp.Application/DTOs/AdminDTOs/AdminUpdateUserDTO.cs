@@ -9,7 +9,7 @@ namespace kidsApp.Application.DTOs.AdminDTOs
 
         [Required, EmailAddress]
         public string Email { get; set; }
-        public string Role { get; set; }
 
+        public string Role { get; set; }
     }
 }

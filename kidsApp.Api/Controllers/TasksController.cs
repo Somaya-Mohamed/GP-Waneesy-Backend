@@ -2,14 +2,12 @@
 using kidsApp.Application.ServiceManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/tasks")]
     [Authorize]
-
     public class TasksController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -19,6 +17,7 @@ namespace kidsApp.API.Controllers
             _serviceManager = serviceManager;
         }
 
+        // GET: api/v1/tasks
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetAll()
@@ -32,6 +31,7 @@ namespace kidsApp.API.Controllers
             });
         }
 
+        // GET: api/v1/tasks/5
         [HttpGet("{id:int}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
@@ -48,6 +48,7 @@ namespace kidsApp.API.Controllers
             });
         }
 
+        // POST: api/v1/tasks
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateTaskDTO dto)
@@ -61,6 +62,7 @@ namespace kidsApp.API.Controllers
                 new { Success = true, Message = "Task created successfully", Data = created });
         }
 
+        // PUT: api/v1/tasks/5
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateTaskDTO dto)
@@ -75,6 +77,7 @@ namespace kidsApp.API.Controllers
             return Ok(new { Success = true, Message = "Task updated successfully" });
         }
 
+        // DELETE: api/v1/tasks/5
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)

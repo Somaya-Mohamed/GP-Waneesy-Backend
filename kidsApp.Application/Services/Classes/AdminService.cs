@@ -3,6 +3,9 @@ using kidsApp.Application.DTOs.AdminDTOs;
 using kidsApp.Application.Services.Interfaces;
 using kidsApp.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace kidsApp.Application.Services.Classes
 {
@@ -23,17 +26,40 @@ namespace kidsApp.Application.Services.Classes
         }
 
         // ===== Users =====
-
         public async Task<IEnumerable<AdminUserDTO>> GetAllUsersAsync()
         {
             var users = _userManager.Users.ToList();
-            return _mapper.Map<IEnumerable<AdminUserDTO>>(users);
+            var result = new List<AdminUserDTO>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                result.Add(new AdminUserDTO
+                {
+                    Id = user.Id,
+                    UserName = user.UserName ?? string.Empty,
+                    Email = user.Email ?? string.Empty,
+                    Role = roles.FirstOrDefault() ?? "User"
+                });
+            }
+
+            return result;
         }
 
-        public async Task<AdminUserDTO?> GetUserByIdAsync(int id)
+        public async Task<AdminUserDTO?> GetUserByIdAsync(string id)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            return user == null ? null : _mapper.Map<AdminUserDTO>(user);
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return null;
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return new AdminUserDTO
+            {
+                Id = user.Id,
+                UserName = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                Role = roles.FirstOrDefault() ?? "User"
+            };
         }
 
         public async Task<AdminUserDTO> CreateUserAsync(AdminCreateUserDTO dto)
@@ -41,16 +67,20 @@ namespace kidsApp.Application.Services.Classes
             var user = new ApplicationUser
             {
                 UserName = dto.UserName,
-                Email = dto.Email
+                Email = dto.Email,
+                EmailConfirmed = true
             };
 
             var result = await _userManager.CreateAsync(user, dto.Password);
-            if (!result.Succeeded)
-                throw new Exception(string.Join(", ",
-                    result.Errors.Select(e => e.Description)));
 
+            if (!result.Succeeded)
+                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+
+            // إنشاء الـ Role لو مش موجود
             if (!await _roleManager.RoleExistsAsync(dto.Role))
+            {
                 await _roleManager.CreateAsync(new IdentityRole(dto.Role));
+            }
 
             await _userManager.AddToRoleAsync(user, dto.Role);
 
@@ -63,27 +93,38 @@ namespace kidsApp.Application.Services.Classes
             };
         }
 
-        public async Task<bool> UpdateUserAsync(int id, AdminUpdateUserDTO dto)
+        public async Task<bool> UpdateUserAsync(string id, AdminUpdateUserDTO dto)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null) return false;
 
-            _mapper.Map(dto, user);
-            await _userManager.UpdateAsync(user);
+            user.UserName = dto.UserName;
+            user.Email = dto.Email;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded) return false;
+
+            // تحديث الـ Role لو تم إرسالها
+            if (!string.IsNullOrEmpty(dto.Role))
+            {
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                await _userManager.AddToRoleAsync(user, dto.Role);
+            }
+
             return true;
         }
 
-        public async Task<bool> DeleteUserAsync(int id)
+        public async Task<bool> DeleteUserAsync(string id)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null) return false;
 
-            await _userManager.DeleteAsync(user);
-            return true;
+            var result = await _userManager.DeleteAsync(user);
+            return result.Succeeded;
         }
 
-        // ===== Roles (AutoMapper هنا) =====
-
+        // ===== Roles =====
         public async Task<IEnumerable<AdminRoleDTO>> GetAllRolesAsync()
         {
             var roles = _roleManager.Roles.ToList();
@@ -92,9 +133,12 @@ namespace kidsApp.Application.Services.Classes
 
         public async Task<AdminRoleDTO> CreateRoleAsync(AdminCreateRoleDTO dto)
         {
-            var role = new IdentityRole(dto.Name);
+            if (await _roleManager.RoleExistsAsync(dto.Name))
+                throw new Exception("Role already exists");
 
+            var role = new IdentityRole(dto.Name);
             var result = await _roleManager.CreateAsync(role);
+
             if (!result.Succeeded)
                 throw new Exception(result.Errors.First().Description);
 

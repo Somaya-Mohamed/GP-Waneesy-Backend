@@ -10,6 +10,5 @@ namespace kidsApp.Domain.Entities
 
     public class ApplicationUser : IdentityUser
     {
-        // تقدر تزودي خصائص بعدين لو حابة
     }
 }

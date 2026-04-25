@@ -2,6 +2,7 @@
 using kidsApp.Application.ServiceManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace kidsApp.API.Controllers
 {
@@ -31,7 +32,7 @@ namespace kidsApp.API.Controllers
             });
         }
 
-        // GET: api/v1/story-progress/{id}
+        // GET: api/v1/story-progress/5
         [HttpGet("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(int id)
@@ -48,7 +49,8 @@ namespace kidsApp.API.Controllers
             });
         }
 
-        // GET: api/v1/story-progress/story/{storyId}  
+        // GET: api/v1/story-progress/story/{storyId}
+        // Child يشوف progress القصة لنفسه بس
         [HttpGet("story/{storyId:int}")]
         [Authorize(Roles = "Child")]
         public async Task<IActionResult> GetByStoryId(int storyId)
@@ -62,12 +64,22 @@ namespace kidsApp.API.Controllers
             });
         }
 
-        // NEW: GET: api/v1/story-progress/child/{childId}  
+        // GET: api/v1/story-progress/child/{childId}
+        // Parent يشوف progress أولاده بس
         [HttpGet("child/{childId:int}")]
         [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetByChildId(int childId)
         {
+            var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var isOwner = await _serviceManager.ChildService
+                .IsChildBelongsToParentAsync(childId, parentId);
+
+            if (!isOwner)
+                return Forbid();
+
             var progress = await _serviceManager.StoryProgressService.GetProgressByChildIdAsync(childId);
+
             return Ok(new
             {
                 Success = true,
@@ -77,23 +89,23 @@ namespace kidsApp.API.Controllers
         }
 
         // POST: api/v1/story-progress
+        // Child يضيف progress لنفسه بس
         [HttpPost]
         [Authorize(Roles = "Child")]
         public async Task<IActionResult> Create([FromBody] CreateStoryProgressDTO dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Invalid data",
-                    Errors = ModelState
-                });
+                return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
+
+            var childId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            // Child مينفعش يضيف progress باسم child تاني
+            if (dto.ChildId != childId)
+                return Forbid();
 
             var createdProgress = await _serviceManager.StoryProgressService.CreateAsync(dto);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = createdProgress.ProgressId },
+            return CreatedAtAction(nameof(GetById), new { id = createdProgress.ProgressId },
                 new
                 {
                     Success = true,
@@ -102,7 +114,7 @@ namespace kidsApp.API.Controllers
                 });
         }
 
-        // DELETE: api/v1/story-progress/{id}
+        // DELETE: api/v1/story-progress/5
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
