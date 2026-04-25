@@ -1,11 +1,13 @@
 ﻿using kidsApp.Application.DTOs.StoryProgress_DTOs;
 using kidsApp.Application.ServiceManager;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/story-progress")]
+    [Authorize]
     public class StoryProgressController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -17,6 +19,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/story-progress
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var progresses = await _serviceManager.StoryProgressService.GetAllAsync();
@@ -30,6 +33,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/story-progress/{id}
         [HttpGet("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(int id)
         {
             var progress = await _serviceManager.StoryProgressService.GetByIdAsync(id);
@@ -46,6 +50,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/story-progress/story/{storyId}  
         [HttpGet("story/{storyId:int}")]
+        [Authorize(Roles = "Child")]
         public async Task<IActionResult> GetByStoryId(int storyId)
         {
             var progress = await _serviceManager.StoryProgressService.GetStoryProgressByIdAsync(storyId);
@@ -59,6 +64,7 @@ namespace kidsApp.API.Controllers
 
         // NEW: GET: api/v1/story-progress/child/{childId}  
         [HttpGet("child/{childId:int}")]
+        [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetByChildId(int childId)
         {
             var progress = await _serviceManager.StoryProgressService.GetProgressByChildIdAsync(childId);
@@ -72,6 +78,7 @@ namespace kidsApp.API.Controllers
 
         // POST: api/v1/story-progress
         [HttpPost]
+        [Authorize(Roles = "Child")]
         public async Task<IActionResult> Create([FromBody] CreateStoryProgressDTO dto)
         {
             if (!ModelState.IsValid)
@@ -97,6 +104,7 @@ namespace kidsApp.API.Controllers
 
         // DELETE: api/v1/story-progress/{id}
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.StoryProgressService.DeleteAsync(id);

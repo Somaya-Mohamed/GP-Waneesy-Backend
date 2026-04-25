@@ -2,11 +2,13 @@
 using kidsApp.Application.DTOs.VideoActivityDTOs;
 using kidsApp.Application.ServiceManager;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/videos")]
+    [Authorize]
     public class VideosController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -17,6 +19,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var videos = await _serviceManager.VideoService.GetAllAsync();
@@ -29,6 +32,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
         {
             var video = await _serviceManager.VideoService.GetByIdAsync(id);
@@ -44,6 +48,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateVideoDTO dto)
         {
             if (!ModelState.IsValid)
@@ -56,6 +61,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateVideoDTO dto)
         {
             if (!ModelState.IsValid)
@@ -69,6 +75,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.VideoService.DeleteAsync(id);
@@ -80,6 +87,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/videos/{id}/activities
         [HttpGet("{id:int}/activities")]
+        [Authorize(Roles = "Parent,Admin")]
         public async Task<IActionResult> GetVideoActivities(int id)
         {
             var activities = await _serviceManager.VideoService.GetVideoActivitiesByIdAsync(id);
@@ -93,6 +101,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/videos/category/{category}
         [HttpGet("category/{category}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetByCategory(string category)
         {
             if (string.IsNullOrWhiteSpace(category))
@@ -109,6 +118,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/videos/top-watched
         [HttpGet("top-watched")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetTopWatched([FromQuery] int topCount = 5)
         {
             if (topCount <= 0) topCount = 5;

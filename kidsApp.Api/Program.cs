@@ -154,7 +154,7 @@ namespace kidsApp.Api
             app.UseHttpsRedirection();
 
             app.UseCors("AllowAll");
-            app.UseAuthentication();   
+            app.UseAuthentication();
 
 
             app.UseAuthorization();
@@ -166,8 +166,3 @@ namespace kidsApp.Api
         }
     }
 }
-
-
-
-
-

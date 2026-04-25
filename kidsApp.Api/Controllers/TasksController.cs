@@ -1,5 +1,6 @@
 ﻿using kidsApp.Application.DTOs.TaskDTOs;
 using kidsApp.Application.ServiceManager;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
@@ -7,6 +8,8 @@ namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/tasks")]
+    [Authorize]
+
     public class TasksController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -17,6 +20,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var tasks = await _serviceManager.TaskService.GetAllAsync();
@@ -29,6 +33,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
         {
             var task = await _serviceManager.TaskService.GetByIdAsync(id);
@@ -44,6 +49,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateTaskDTO dto)
         {
             if (!ModelState.IsValid)
@@ -56,6 +62,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateTaskDTO dto)
         {
             if (!ModelState.IsValid)
@@ -69,6 +76,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.TaskService.DeleteAsync(id);
@@ -80,6 +88,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/tasks/difficulty/{level}
         [HttpGet("difficulty/{level}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetByDifficulty(string level)
         {
             if (string.IsNullOrWhiteSpace(level))
@@ -97,6 +106,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/tasks/category/{category}
         [HttpGet("category/{category}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetByCategory(string category)
         {
             if (string.IsNullOrWhiteSpace(category))

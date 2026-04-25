@@ -1,5 +1,6 @@
 ﻿using kidsApp.Application.DTOs.GameDTOs;
 using kidsApp.Application.ServiceManager;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
@@ -7,6 +8,7 @@ namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/games")]
+    [AllowAnonymous]
     public class GamesController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -34,6 +36,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] GameCreateDTO dto)
         {
             if (!ModelState.IsValid)
@@ -49,6 +52,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] GameUpdateDTO dto)
         {
             if (!ModelState.IsValid)
@@ -62,6 +66,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.GameService.DeleteAsync(id);

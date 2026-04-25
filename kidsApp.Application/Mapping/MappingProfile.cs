@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using kidsApp.Application.DTOs.ActivityDTOs;
 using kidsApp.Application.DTOs.AdminDTOs;
+using kidsApp.Application.DTOs.ArticleDTOs;
 using kidsApp.Application.DTOs.ChildDTOs;
 using kidsApp.Application.DTOs.GameDTOs;
 using kidsApp.Application.DTOs.GameScoreDTOs;
@@ -217,6 +218,19 @@ namespace kidsApp.Application.Mapping
                 .ForMember(dest => dest.WatchedPercent, opt => opt.MapFrom(src => src.WatchPercent))
                 .ForMember(dest => dest.LastUpdated, opt => opt.MapFrom(_ => DateTime.UtcNow));
 
+            // ====================== Article ======================
+
+
+            // Create
+            CreateMap<CreateArticleDTO, Article>();
+
+            // Update
+            CreateMap<UpdateArticleDTO, Article>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+            // Read
+            CreateMap<Article, ArticleDTO>();
+
             // ===== Admin User =====
             CreateMap<ApplicationUser, AdminUserDTO>();
             CreateMap<AdminCreateUserDTO, ApplicationUser>();
@@ -224,6 +238,7 @@ namespace kidsApp.Application.Mapping
 
             // ===== Admin Role =====
             CreateMap<IdentityRole, AdminRoleDTO>();
+
 
 
         }
