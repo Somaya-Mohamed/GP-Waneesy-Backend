@@ -1,11 +1,13 @@
 ﻿using kidsApp.Application.DTOs.GameScoreDTOs;
 using kidsApp.Application.ServiceManager;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/game-scores")]
+    [Authorize]
     public class GameScoresController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -16,6 +18,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var scores = await _serviceManager.GameScoreService.GetAllAsync();
@@ -23,6 +26,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(int id)
         {
             var score = await _serviceManager.GameScoreService.GetByIdAsync(id);
@@ -33,6 +37,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Child")]
         public async Task<IActionResult> Create([FromBody] GameScoreCreateDTO dto)
         {
             if (!ModelState.IsValid)
@@ -43,6 +48,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] GameScoreUpdateDTO dto)
         {
             if (!ModelState.IsValid)
@@ -56,6 +62,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.GameScoreService.DeleteAsync(id);
@@ -67,6 +74,7 @@ namespace kidsApp.API.Controllers
 
         // Advanced Endpoints
         [HttpGet("game/{gameId:int}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetByGameId(int gameId)
         {
             var scores = await _serviceManager.GameScoreService.GetScoresByGameIdAsync(gameId);
@@ -74,6 +82,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpGet("child/{childId:int}")]
+        [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetByChildId(int childId)
         {
             var scores = await _serviceManager.GameScoreService.GetScoresByChildIdAsync(childId);
@@ -81,6 +90,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpGet("top/{count:int}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetTopScores(int count)
         {
             if (count <= 0) count = 10;

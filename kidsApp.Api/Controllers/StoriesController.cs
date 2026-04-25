@@ -1,13 +1,14 @@
 ﻿using kidsApp.Application.DTOs.StoryDTOs;
 using kidsApp.Application.DTOs.StoryProgress_DTOs;
 using kidsApp.Application.ServiceManager;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/stories")]
-    //[Authorize]   
+    [AllowAnonymous]
     public class StoriesController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -52,6 +53,8 @@ namespace kidsApp.API.Controllers
 
         // POST: api/v1/stories
         [HttpPost]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> Create([FromBody] CreateStoryDTO dto)
         {
             if (!ModelState.IsValid)
@@ -77,6 +80,8 @@ namespace kidsApp.API.Controllers
 
         // PUT: api/v1/stories/5
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> Update(int id, [FromBody] UpdateStoryDTO dto)
         {
             if (!ModelState.IsValid)
@@ -104,6 +109,8 @@ namespace kidsApp.API.Controllers
 
         // DELETE: api/v1/stories/5
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.StoryService.DeleteAsync(id);
@@ -138,6 +145,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/stories/category/{category}
         [HttpGet("category/{category}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetStoriesByCategory(string category)
         {
             if (string.IsNullOrWhiteSpace(category))

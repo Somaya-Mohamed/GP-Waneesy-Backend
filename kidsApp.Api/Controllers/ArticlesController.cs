@@ -1,11 +1,12 @@
 ﻿using kidsApp.Application.DTOs.ArticleDTOs;
 using kidsApp.Application.ServiceManager;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.Authorization;
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/articles")]
+    [AllowAnonymous]
     public class ArticlesController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -52,6 +53,7 @@ namespace kidsApp.API.Controllers
 
         // ================= CREATE =================
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateArticleDTO dto)
         {
             var created = await _serviceManager.ArticleService.CreateAsync(dto);
@@ -69,6 +71,7 @@ namespace kidsApp.API.Controllers
 
         // ================= UPDATE =================
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateArticleDTO dto)
         {
             var updated = await _serviceManager.ArticleService.UpdateAsync(id, dto);
@@ -89,6 +92,7 @@ namespace kidsApp.API.Controllers
 
         // ================= DELETE =================
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.ArticleService.DeleteAsync(id);

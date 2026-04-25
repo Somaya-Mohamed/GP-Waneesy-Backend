@@ -7,6 +7,7 @@ namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/parents")]
+    [Authorize]
     public class ParentsController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -17,6 +18,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var parents = await _serviceManager.ParentService.GetAllAsync();
@@ -24,6 +26,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [Authorize(Roles = "Admin,Parent")]
         public async Task<IActionResult> GetById(int id)
         {
             var parent = await _serviceManager.ParentService.GetByIdAsync(id);
@@ -34,6 +37,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Create([FromBody] ParentCreateDto dto)
         {
             if (!ModelState.IsValid)
@@ -45,6 +49,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Parent")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateParentDTO dto)
         {
             if (!ModelState.IsValid)
@@ -58,6 +63,7 @@ namespace kidsApp.API.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin,Parent")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _serviceManager.ParentService.DeleteAsync(id);
@@ -70,6 +76,7 @@ namespace kidsApp.API.Controllers
         // ================= Advanced Endpoints =================
 
         [HttpGet("{id:int}/children")]
+        [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetChildren(int id)
         {
             var children = await _serviceManager.ParentService.GetChildrenSummaryAsync(id);
