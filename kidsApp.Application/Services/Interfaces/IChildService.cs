@@ -19,5 +19,6 @@ namespace kidsApp.Application.Services.Interfaces
         Task<ChildReportDTO> GetWeeklyReportAsync(int childId);
         Task<ChildActivitiesSummaryDTO> GetChildActivitiesSummaryAsync(int childId);
         Task<IEnumerable<ChildTopScoreDTO>> GetTopScoresAsync(int childId, int topCount = 5);
+        Task<bool> IsChildBelongsToParentAsync(int childId, int parentId);
     }
 }

@@ -2,13 +2,13 @@
 using kidsApp.Application.ServiceManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace kidsApp.API.Controllers
 {
     [ApiController]
     [Route("api/v1/video-activities")]
     [Authorize]
-
     public class VideoActivitiesController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -39,11 +39,7 @@ namespace kidsApp.API.Controllers
         {
             var activity = await _serviceManager.VideoActivityService.GetByIdAsync(id);
             if (activity == null)
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = "Video activity not found"
-                });
+                return NotFound(new { Success = false, Message = "Video activity not found" });
 
             return Ok(new
             {
@@ -54,23 +50,23 @@ namespace kidsApp.API.Controllers
         }
 
         // POST: api/v1/video-activities
+        // Child يضيف activity لنفسه بس
         [HttpPost]
         [Authorize(Roles = "Child")]
         public async Task<IActionResult> Create([FromBody] CreateVideoActivityDTO dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Invalid data",
-                    Errors = ModelState
-                });
+                return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
+
+            var childId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            // Child مينفعش يضيف activity باسم child تاني
+            if (dto.ChildId != childId)
+                return Forbid();
 
             var created = await _serviceManager.VideoActivityService.CreateAsync(dto);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = created.ActivityId },
+            return CreatedAtAction(nameof(GetById), new { id = created.ActivityId },
                 new
                 {
                     Success = true,
@@ -86,44 +82,50 @@ namespace kidsApp.API.Controllers
         {
             var deleted = await _serviceManager.VideoActivityService.DeleteAsync(id);
             if (!deleted)
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = "Video activity not found"
-                });
+                return NotFound(new { Success = false, Message = "Video activity not found" });
 
-            return Ok(new
-            {
-                Success = true,
-                Message = "Video activity deleted successfully"
-            });
+            return Ok(new { Success = true, Message = "Video activity deleted successfully" });
         }
 
         // PUT: api/v1/video-activities/5/update-progress
+        // Child يعدل progress الخاص بيه بس
         [HttpPut("{id:int}/update-progress")]
         [Authorize(Roles = "Child")]
         public async Task<IActionResult> UpdateProgress(int id, [FromBody] UpdateVideoProgressDTO dto)
         {
-            var updated = await _serviceManager.VideoActivityService.UpdateProgressAsync(id, dto.WatchPercent, dto.Status);
-            if (!updated)
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = "Video activity not found"
-                });
+            var childId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-            return Ok(new
-            {
-                Success = true,
-                Message = "Progress updated successfully"
-            });
+            // تتأكد إن الـ activity دي ملك الـ child ده
+            var activity = await _serviceManager.VideoActivityService.GetByIdAsync(id);
+            if (activity == null)
+                return NotFound(new { Success = false, Message = "Video activity not found" });
+
+            if (activity.ChildId != childId)
+                return Forbid();
+
+            var updated = await _serviceManager.VideoActivityService
+                .UpdateProgressAsync(id, dto.WatchPercent, dto.Status);
+
+            if (!updated)
+                return NotFound(new { Success = false, Message = "Video activity not found" });
+
+            return Ok(new { Success = true, Message = "Progress updated successfully" });
         }
 
-        // GET: api/v1/video-activities/child/{childId}  (optional)
+        // GET: api/v1/video-activities/child/{childId}
+        // Parent يشوف activities أولاده بس
         [HttpGet("child/{childId:int}")]
         [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetByChild(int childId)
         {
+            var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var isOwner = await _serviceManager.ChildService
+                .IsChildBelongsToParentAsync(childId, parentId);
+
+            if (!isOwner)
+                return Forbid();
+
             var activities = await _serviceManager.VideoActivityService.GetByChildIdAsync(childId);
             return Ok(new
             {

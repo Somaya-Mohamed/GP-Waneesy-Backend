@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
-using kidsApp.Domain.Entities;
 
 namespace kidsApp.API.Controllers
 {
@@ -47,7 +46,7 @@ namespace kidsApp.API.Controllers
             });
         }
 
-        // ====================== Child Login (PIN Code) ======================
+        // ====================== Child Login ======================
         [HttpPost("child/login")]
         [AllowAnonymous]
         public async Task<IActionResult> ChildLogin([FromBody] ChildLoginDto dto)
@@ -76,11 +75,16 @@ namespace kidsApp.API.Controllers
 
         // ====================== Switch Child ======================
         [HttpPost("switch-child")]
+        [Authorize(Roles = "Parent")]
         public async Task<IActionResult> SwitchChild([FromBody] ChildLoginDto dto)
         {
+            var parentIdClaim = User.FindFirst("ParentId")?.Value;
+            if (string.IsNullOrEmpty(parentIdClaim) || !int.TryParse(parentIdClaim, out int parentId))
+                return Unauthorized(new { Success = false, Message = "Invalid parent session" });
+
             var child = await _unitOfWork.Children.GetByIdAsync(dto.ChildId);
 
-            if (child == null || child.PinCode != dto.PinCode)
+            if (child == null || child.ParentId != parentId || child.PinCode != dto.PinCode)
                 return Unauthorized(new { Success = false, Message = "Invalid child or PIN code" });
 
             var token = GenerateJwtToken(child.Id.ToString(), "Child", child.Name, child.ParentId);
@@ -96,15 +100,15 @@ namespace kidsApp.API.Controllers
             });
         }
 
-        // ====================== Admin Login (ثابت في الكود دلوقتي) ======================
+        // ====================== Admin Login ======================
         [HttpPost("admin/login")]
         [AllowAnonymous]
         public IActionResult AdminLogin([FromBody] AdminLoginDto dto)
         {
-            if (dto.Email == "admin@waneesy.com" && dto.Password == "waneesy123")
+            // يفضل تخزني الـ credentials في appsettings أو secrets في الإنتاج
+            if (dto.Email == "admin@waneesy.com" && dto.Password == "waneesy7124")
             {
                 var token = GenerateJwtToken("0", "Admin", "System Admin", 0);
-
                 return Ok(new
                 {
                     Success = true,
@@ -117,7 +121,8 @@ namespace kidsApp.API.Controllers
 
             return Unauthorized(new { Success = false, Message = "Invalid admin credentials" });
         }
-        //Get Current User(ME)
+
+        // ====================== Get Current User ======================
         [HttpGet("me")]
         [Authorize]
         public IActionResult GetCurrentUser()
@@ -125,21 +130,25 @@ namespace kidsApp.API.Controllers
             var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             var name = User.FindFirst(ClaimTypes.Name)?.Value;
+            var parentId = User.FindFirst("ParentId")?.Value;
 
             return Ok(new
             {
                 Id = id,
                 Role = role,
-                FullName = name
+                FullName = name,
+                ParentId = parentId
             });
         }
 
-        //Get My Children(Parent Only)
+        // ====================== Get My Children ======================
         [HttpGet("my-children")]
         [Authorize(Roles = "Parent")]
         public async Task<IActionResult> GetMyChildren()
         {
-            var parentId = int.Parse(User.FindFirst("ParentId").Value);
+            var parentIdClaim = User.FindFirst("ParentId")?.Value;
+            if (string.IsNullOrEmpty(parentIdClaim) || !int.TryParse(parentIdClaim, out int parentId))
+                return Unauthorized(new { Success = false, Message = "Invalid parent session" });
 
             var children = (await _unitOfWork.Children.GetAllAsync())
                 .Where(c => c.ParentId == parentId)
@@ -147,71 +156,19 @@ namespace kidsApp.API.Controllers
                 {
                     c.Id,
                     c.Name,
-                    c.Age
+                    c.Age,
+                    c.AvatarUrl
                 });
 
             return Ok(new
             {
                 Success = true,
+                Message = "Children retrieved successfully",
                 Data = children
             });
         }
-        //Change Password(Parent)
-        [HttpPost("change-password")]
-        [Authorize(Roles = "Parent")]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
-        {
-            var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
-            var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
-
-            if (parent == null)
-                return NotFound(new { Success = false, Message = "Parent not found" });
-
-            if (parent.Password != dto.OldPassword)
-                return BadRequest(new { Success = false, Message = "Old password is incorrect" });
-
-            parent.Password = dto.NewPassword;
-
-            await _unitOfWork.CompleteAsync();
-
-            return Ok(new
-            {
-                Success = true,
-                Message = "Password changed successfully"
-            });
-        }
-        //Delete Account(Parent)
-        [HttpDelete("delete-account")]
-        [Authorize(Roles = "Parent")]
-        public async Task<IActionResult> DeleteAccount()
-        {
-            var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-
-            var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
-
-            if (parent == null)
-                return NotFound();
-
-            // ممكن هنا كمان تمسح children لو موجودين
-            var children = (await _unitOfWork.Children.GetAllAsync())
-                .Where(c => c.ParentId == parentId);
-
-            foreach (var child in children)
-            {
-                _unitOfWork.Children.Delete(child);
-            }
-
-            _unitOfWork.Parents.Delete(parent);
-
-            await _unitOfWork.CompleteAsync();
-
-            return Ok(new
-            {
-                Success = true,
-                Message = "Account deleted successfully"
-            });
-        }
+        // ====================== JWT Helper ======================
         private string GenerateJwtToken(string id, string role, string name, int parentId)
         {
             var claims = new List<Claim>
@@ -222,7 +179,9 @@ namespace kidsApp.API.Controllers
                 new Claim("ParentId", parentId.ToString())
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? "super-secret-key-12345"));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                _config["Jwt:Key"] ?? "super-secret-key-12345-change-in-production"));
+
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
