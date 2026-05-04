@@ -3,10 +3,6 @@ using kidsApp.Application.DTOs.TaskLogDTOs;
 using kidsApp.Application.Services.Interfaces;
 using kidsApp.Domain.Contracts;
 using kidsApp.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace kidsApp.Application.Services
 {
@@ -36,10 +32,11 @@ namespace kidsApp.Application.Services
         public async Task<TaskLogDTO> CreateAsync(CreateTaskLogDTO dto)
         {
             var log = _mapper.Map<TaskLog>(dto);
-
             log.Status = dto.IsCompleted ? "Completed" : "Pending";
             log.DateCompleted = dto.IsCompleted ? DateTime.UtcNow : null;
-            log.PointsEarned = dto.IsCompleted ? 10 : 0;   // يمكن تعديله حسب الـ Task.PointsRewarded بعدين
+
+            var task = await _unitOfWork.Tasks.GetByIdAsync(dto.TaskId);
+            log.PointsEarned = (dto.IsCompleted && task != null) ? task.PointsRewarded : 0;
 
             await _unitOfWork.TaskLogs.AddAsync(log);
             await _unitOfWork.SaveChangesAsync();
@@ -50,6 +47,7 @@ namespace kidsApp.Application.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
+
             var log = await _unitOfWork.TaskLogs.GetByIdAsync(id);
             if (log == null) return false;
 

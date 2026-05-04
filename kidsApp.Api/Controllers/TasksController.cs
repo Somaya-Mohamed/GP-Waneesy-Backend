@@ -50,7 +50,7 @@ namespace kidsApp.API.Controllers
 
         // POST: api/v1/tasks
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Child,Admin")]
         public async Task<IActionResult> Create([FromBody] CreateTaskDTO dto)
         {
             if (!ModelState.IsValid)

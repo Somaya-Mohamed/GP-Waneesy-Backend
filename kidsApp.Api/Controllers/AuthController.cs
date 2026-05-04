@@ -167,7 +167,59 @@ namespace kidsApp.API.Controllers
                 Data = children
             });
         }
+        // ====================== Change Password ======================
+        [HttpPost("change-password")]
+        [Authorize(Roles = "Parent")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
 
+            var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
+            if (parent == null)
+                return NotFound(new { Success = false, Message = "Parent not found" });
+
+            if (parent.Password != dto.OldPassword)
+                return BadRequest(new { Success = false, Message = "Old password is incorrect" });
+
+            parent.Password = dto.NewPassword;
+            await _unitOfWork.CompleteAsync();
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Password changed successfully"
+            });
+        }
+
+        // ====================== Delete Account ======================
+        [HttpDelete("delete-account")]
+        [Authorize(Roles = "Parent")]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var parent = await _unitOfWork.Parents.GetByIdAsync(parentId);
+            if (parent == null)
+                return NotFound(new { Success = false, Message = "Parent not found" });
+
+            var children = (await _unitOfWork.Children.GetAllAsync())
+                .Where(c => c.ParentId == parentId);
+
+            foreach (var child in children)
+                _unitOfWork.Children.Delete(child);
+
+            _unitOfWork.Parents.Delete(parent);
+            await _unitOfWork.CompleteAsync();
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Account deleted successfully"
+            });
+        }
         // ====================== JWT Helper ======================
         private string GenerateJwtToken(string id, string role, string name, int parentId)
         {

@@ -14,7 +14,7 @@ namespace kidsApp.Domain.Entities
         public string Duration { get; set; } = "10";
         public string? VideoUrl { get; set; }
 
-        public int PointsRewarded { get; set; } = 10;  
+        public int PointsRewarded { get; set; }  
 
         // Navigation
         public ICollection<TaskLog> TaskLogs { get; set; } = new List<TaskLog>();

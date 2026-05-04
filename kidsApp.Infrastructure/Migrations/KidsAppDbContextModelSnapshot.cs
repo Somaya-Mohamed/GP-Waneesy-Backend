@@ -212,7 +212,7 @@ namespace kidsApp.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Articles");
+                    b.ToTable("Articles", (string)null);
                 });
 
             modelBuilder.Entity("kidsApp.Domain.Entities.Child", b =>
@@ -292,7 +292,7 @@ namespace kidsApp.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Games");
+                    b.ToTable("Games", (string)null);
                 });
 
             modelBuilder.Entity("kidsApp.Domain.Entities.GameScore", b =>
@@ -324,7 +324,7 @@ namespace kidsApp.Infrastructure.Migrations
 
                     b.HasIndex("GameId");
 
-                    b.ToTable("GameScores");
+                    b.ToTable("GameScores", (string)null);
                 });
 
             modelBuilder.Entity("kidsApp.Domain.Entities.Parent", b =>
@@ -361,7 +361,7 @@ namespace kidsApp.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Parents");
+                    b.ToTable("Parents", (string)null);
                 });
 
             modelBuilder.Entity("kidsApp.Domain.Entities.Report", b =>
@@ -401,7 +401,7 @@ namespace kidsApp.Infrastructure.Migrations
 
                     b.HasIndex("ChildId");
 
-                    b.ToTable("Reports");
+                    b.ToTable("Reports", (string)null);
                 });
 
             modelBuilder.Entity("kidsApp.Domain.Entities.Story", b =>
@@ -435,7 +435,7 @@ namespace kidsApp.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Stories");
+                    b.ToTable("Stories", (string)null);
                 });
 
             modelBuilder.Entity("kidsApp.Domain.Entities.StoryProgress", b =>
@@ -471,7 +471,7 @@ namespace kidsApp.Infrastructure.Migrations
 
                     b.HasIndex("StoryId");
 
-                    b.ToTable("StoryProgress");
+                    b.ToTable("StoryProgress", (string)null);
                 });
 
             modelBuilder.Entity("kidsApp.Domain.Entities.TaskLog", b =>
@@ -504,7 +504,7 @@ namespace kidsApp.Infrastructure.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("TaskLogs");
+                    b.ToTable("TaskLogs", (string)null);
                 });
 
             modelBuilder.Entity("kidsApp.Domain.Entities.Tasks", b =>
@@ -543,7 +543,7 @@ namespace kidsApp.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Tasks", (string)null);
                 });
 
             modelBuilder.Entity("kidsApp.Domain.Entities.Video", b =>
@@ -575,7 +575,7 @@ namespace kidsApp.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Videos");
+                    b.ToTable("Videos", (string)null);
                 });
 
             modelBuilder.Entity("kidsApp.Domain.Entities.VideoActivity", b =>
@@ -608,7 +608,7 @@ namespace kidsApp.Infrastructure.Migrations
 
                     b.HasIndex("VideoId");
 
-                    b.ToTable("VideoActivities");
+                    b.ToTable("VideoActivities", (string)null);
                 });
 
             modelBuilder.Entity("kidsApp.Domain.Entities.Child", b =>

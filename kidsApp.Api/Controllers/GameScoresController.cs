@@ -145,7 +145,7 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/game-scores/top/{count}
         [HttpGet("top/{count:int}")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetTopScores(int count)
         {
             if (count <= 0) count = 10;
