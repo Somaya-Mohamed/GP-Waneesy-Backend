@@ -34,7 +34,7 @@ namespace kidsApp.Infrastructure.UnitOfWork
             return await _context.SaveChangesAsync();
         }
         public IGenericRepository<Article> Articles
-    => _articleRepository ??= new ArticleRepository(_context);
+           => _articleRepository ??= new ArticleRepository(_context);
         public IChildRepository Children => _childRepository ??= new ChildRepository(_context);
         public IParentRepository Parents => _parentRepository ??= new ParentRepository(_context);
         public IStoryProgressRepository StoryProgress

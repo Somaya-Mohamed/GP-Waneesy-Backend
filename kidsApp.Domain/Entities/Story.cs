@@ -14,7 +14,7 @@ namespace kidsApp.Domain.Entities
         public string Category { get; set; }
         public string? AudioUrl { get; set; }
         public string? Url { get; set; }
-        public int PointsRewarded { get; set; } = 20;   
+        public int PointsRewarded { get; set; }   
 
         // Navigation
         public ICollection<StoryProgress> StoryProgress { get; set; } = new List<StoryProgress>();
