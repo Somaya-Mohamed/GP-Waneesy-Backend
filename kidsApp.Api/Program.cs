@@ -1,9 +1,11 @@
 ﻿using kidsApp.Application.Mapping;
 using kidsApp.Application.ServiceManager;
+using kidsApp.Application.Services;
 using kidsApp.Application.Services.Classes;
 using kidsApp.Application.Services.Interfaces;
 using kidsApp.Domain.Contracts;
 using kidsApp.Domain.Entities;
+using kidsApp.Infrastructure.BackgroundServices;
 using kidsApp.Infrastructure.Data;
 using kidsApp.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,10 +13,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.OpenApi.Models;
 
 namespace kidsApp.Api
 {
@@ -61,7 +63,6 @@ namespace kidsApp.Api
                         Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
                     ),
 
-                    // ⭐ مهم علشان [Authorize(Roles = "Admin")]
                     //RoleClaimType = "role"
                     RoleClaimType = ClaimTypes.Role
                 };
@@ -81,7 +82,11 @@ namespace kidsApp.Api
             // ====================== ServiceManager ======================
             builder.Services.AddScoped<IServiceManager, ServiceManager>();
             builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<ITaskLogService, TaskLogService>();
 
+
+            // ====================== DailyResetService ======================
+            builder.Services.AddHostedService<DailyResetService>();
 
             // ====================== Controllers & Swagger ======================
             builder.Services.AddControllers();

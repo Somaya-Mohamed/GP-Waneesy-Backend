@@ -163,7 +163,7 @@ namespace kidsApp.API.Controllers
 
         // POST: api/v1/children/5/avatar
         [HttpPost("{id:int}/avatar")]
-        [Authorize(Roles = "Parent")]
+        [Authorize(Roles = "Parent,Child")]
         public async Task<IActionResult> UploadAvatar(int id, [FromForm] ChildAvatarUploadDto dto)
         {
             if (!await IsParentOwnerAsync(id))

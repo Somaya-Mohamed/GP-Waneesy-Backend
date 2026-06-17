@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using kidsApp.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using kidsApp.Infrastructure.Data;
 namespace kidsApp.Infrastructure.Migrations
 {
     [DbContext(typeof(KidsAppDbContext))]
-    partial class KidsAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260509182547_AddIsArchivedToTaskLog")]
+    partial class AddIsArchivedToTaskLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -494,19 +497,11 @@ namespace kidsApp.Infrastructure.Migrations
                     b.Property<int>("PointsEarned")
                         .HasColumnType("int");
 
-                    b.Property<string>("SnapshotTaskTitle")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SnapshotTaskType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TaskId")
+                    b.Property<int>("TaskId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -700,7 +695,8 @@ namespace kidsApp.Infrastructure.Migrations
                     b.HasOne("kidsApp.Domain.Entities.Tasks", "Task")
                         .WithMany("TaskLogs")
                         .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Child");
 

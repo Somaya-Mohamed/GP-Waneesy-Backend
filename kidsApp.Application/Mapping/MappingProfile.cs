@@ -162,7 +162,10 @@ namespace kidsApp.Application.Mapping
                 .ForMember(dest => dest.LastUpdated, opt => opt.Ignore());
 
             // ====================== Task ======================
-            CreateMap<CreateTaskDTO, Tasks>()
+             CreateMap<CreateTaskDTO, Tasks>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<CreatePersonalTaskDTO, Tasks>()        
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<UpdateTaskDTO, Tasks>()
@@ -171,6 +174,7 @@ namespace kidsApp.Application.Mapping
             CreateMap<Tasks, TaskDTO>()
                 .ForMember(dest => dest.TaskId, opt => opt.MapFrom(src => src.Id));
 
+
             // ====================== TaskLog ======================
             CreateMap<TaskLog, TaskLogDTO>()
                 .ForMember(dest => dest.LogId, opt => opt.MapFrom(src => src.Id))
@@ -178,13 +182,30 @@ namespace kidsApp.Application.Mapping
                 .ForMember(dest => dest.TaskTitle, opt => opt.MapFrom(src => src.Task != null ? src.Task.Title : "Unknown Task"))
                 .ForMember(dest => dest.PointsEarned, opt => opt.MapFrom(src => src.PointsEarned))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-                .ForMember(dest => dest.DateCompleted, opt => opt.MapFrom(src => src.DateCompleted));
+                .ForMember(dest => dest.DateCompleted, opt => opt.MapFrom(src => src.DateCompleted))
+                .ForMember(dest => dest.TaskType, opt => opt.MapFrom(src => src.Task.TaskType))
+                .ForMember(dest => dest.TaskType,
+                           opt => opt.MapFrom(src => src.Task != null ? src.Task.TaskType : "Unknown"))
+                .ForMember(dest => dest.TaskTitle,
+                           opt => opt.MapFrom(src => src.Task != null ? src.Task.Title : "Deleted Task"))
+                .ForMember(dest => dest.ChildName,
+                           opt => opt.MapFrom(src => src.Child != null ? src.Child.Name : ""))
+                .ForMember(dest => dest.TaskTitle,
+                           opt => opt.MapFrom(src =>
+                               src.Task != null ? src.Task.Title : src.SnapshotTaskTitle))
+                .ForMember(dest => dest.TaskType,
+                           opt => opt.MapFrom(src =>
+                               src.Task != null ? src.Task.TaskType : src.SnapshotTaskType))
+                .ForMember(dest => dest.ChildName,
+                          opt => opt.MapFrom(src => src.Child != null ? src.Child.Name : ""));
+
 
             CreateMap<CreateTaskLogDTO, TaskLog>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.PointsEarned, opt => opt.Ignore())   
                 .ForMember(dest => dest.Status, opt => opt.Ignore())
                 .ForMember(dest => dest.DateCompleted, opt => opt.Ignore());
+
 
 
             // ====================== Video ======================
