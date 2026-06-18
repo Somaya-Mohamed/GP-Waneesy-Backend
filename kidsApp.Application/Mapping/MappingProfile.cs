@@ -47,7 +47,7 @@ namespace kidsApp.Application.Mapping
                 .ForMember(dest => dest.Preferences, opt => opt.MapFrom(src => src.Preferences))
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
-
+            // ====================== Reports & Others ======================
             // ChildReportDTO 
             CreateMap<Child, ChildReportDTO>()
                 .ForMember(dest => dest.ChildId, opt => opt.MapFrom(src => src.Id))
@@ -55,7 +55,8 @@ namespace kidsApp.Application.Mapping
                 .ForMember(dest => dest.TotalPoints, opt => opt.Ignore())
                 .ForMember(dest => dest.GamesPlayed, opt => opt.Ignore())
                 .ForMember(dest => dest.StoriesCompleted, opt => opt.Ignore())
-                .ForMember(dest => dest.TasksCompleted, opt => opt.Ignore());
+                .ForMember(dest => dest.TasksCompleted, opt => opt.Ignore())
+                .ForMember(dest => dest.VideosCompleted, opt => opt.Ignore());
 
             // ChildTopScoreDTO 
             CreateMap<GameScore, ChildTopScoreDTO>()
