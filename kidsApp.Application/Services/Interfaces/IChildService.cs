@@ -10,6 +10,7 @@ namespace kidsApp.Application.Services.Interfaces
         Task<ChildReadDTO> GetByIdAsync(int id);
         Task<ChildReadDTO> CreateAsync(ChildCreateDTO dto);
         Task<bool> UpdateAsync(int id, ChildUpdateDto dto);
+        Task<bool> UpdateAvatarOnlyAsync(int id, string avatarUrl);
         Task<bool> DeleteAsync(int id);
 
         // Advanced Methods
