@@ -18,8 +18,6 @@ namespace kidsApp.API.Controllers
             _serviceManager = serviceManager;
         }
 
-        // Helper: يتأكد إن الـ Parent الحالي هو صاحب الـ child ده
-        // لو مش Parent (يعني Admin) → يرجع true تلقائيًا
         private async Task<bool> IsParentOwnerAsync(int childId)
         {
             if (!User.IsInRole("Parent"))
@@ -62,7 +60,6 @@ namespace kidsApp.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
 
-            // Parent مينفعش يضيف child لـ parent تاني
             if (User.IsInRole("Parent"))
             {
                 var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -76,9 +73,10 @@ namespace kidsApp.API.Controllers
                 new { Success = true, Message = "Child created successfully", Data = createdChild });
         }
 
-        // PUT: api/v1/children/5
+        // ====================== Update General Info ======================
+        // PUT: api/v1/children/{id}   
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Admin,Parent")]
+        [Authorize(Roles = "Admin,Parent,Child")]
         public async Task<IActionResult> Update(int id, [FromBody] ChildUpdateDto dto)
         {
             if (!ModelState.IsValid)
@@ -92,7 +90,35 @@ namespace kidsApp.API.Controllers
             if (!updated)
                 return NotFound(new { Success = false, Message = "Child not found" });
 
-            return Ok(new { Success = true, Message = "Child updated successfully" });
+            return Ok(new
+            {
+                Success = true,
+                Message = "Child updated successfully"
+            });
+        }
+
+        // ====================== Update Avatar URL Only ======================
+        [HttpPut("{id:int}/avatar")]
+        [Authorize(Roles = "Parent,Child")]
+        public async Task<IActionResult> UpdateAvatar(int id, [FromBody] string avatarUrl)
+        {
+            if (string.IsNullOrWhiteSpace(avatarUrl))
+                return BadRequest(new { Success = false, Message = "Avatar URL is required" });
+
+            if (!await IsParentOwnerAsync(id))
+                return Forbid();
+
+            var success = await _serviceManager.ChildService.UpdateAvatarOnlyAsync(id, avatarUrl);
+
+            if (!success)
+                return NotFound(new { Success = false, Message = "Child not found" });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Avatar updated successfully",
+                Data = new { AvatarUrl = avatarUrl }
+            });
         }
 
         // DELETE: api/v1/children/5
@@ -161,7 +187,7 @@ namespace kidsApp.API.Controllers
             return Ok(new { Success = true, Message = "Top scores retrieved successfully", Data = topScores });
         }
 
-        // POST: api/v1/children/5/avatar
+        // ====================== Upload Avatar  ======================
         [HttpPost("{id:int}/avatar")]
         [Authorize(Roles = "Parent,Child")]
         public async Task<IActionResult> UploadAvatar(int id, [FromForm] ChildAvatarUploadDto dto)
@@ -173,28 +199,27 @@ namespace kidsApp.API.Controllers
                 return BadRequest(new { Success = false, Message = "No avatar image uploaded" });
 
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-            var extension = Path.GetExtension(dto.AvatarImage.FileName).ToLower();
+            var extension = Path.GetExtension(dto.AvatarImage.FileName).ToLowerInvariant();
 
             if (!allowedExtensions.Contains(extension))
                 return BadRequest(new { Success = false, Message = "Only jpg, jpeg, png, webp allowed" });
 
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "avatars");
+            Directory.CreateDirectory(uploadsFolder);
 
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
-            var fileName = $"child_{id}_{Guid.NewGuid()}{extension}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
+            var uniqueFileName = $"child_{id}_{Guid.NewGuid()}{extension}";
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
+            {
                 await dto.AvatarImage.CopyToAsync(stream);
+            }
 
-            var avatarUrl = $"/avatars/{fileName}";
+            var avatarUrl = $"/avatars/{uniqueFileName}";
 
-            var updateDto = new ChildUpdateDto { AvatarUrl = avatarUrl };
-            var updated = await _serviceManager.ChildService.UpdateAsync(id, updateDto);
+            var success = await _serviceManager.ChildService.UpdateAvatarOnlyAsync(id, avatarUrl);
 
-            if (!updated)
+            if (!success)
                 return NotFound(new { Success = false, Message = "Child not found" });
 
             return Ok(new
@@ -204,5 +229,7 @@ namespace kidsApp.API.Controllers
                 Data = new { AvatarUrl = avatarUrl }
             });
         }
+
+
     }
 }

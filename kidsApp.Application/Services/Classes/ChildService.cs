@@ -50,7 +50,30 @@ namespace kidsApp.Application.Services
             var entity = await _unitOfWork.Children.GetByIdAsync(id);
             if (entity == null) return false;
 
-            _mapper.Map(dto, entity);
+            if (!string.IsNullOrWhiteSpace(dto.Name))
+                entity.Name = dto.Name;
+
+            if (dto.Age.HasValue)
+                entity.Age = dto.Age.Value;
+
+            if (!string.IsNullOrWhiteSpace(dto.AvatarUrl))
+                entity.AvatarUrl = dto.AvatarUrl;
+
+            if (!string.IsNullOrWhiteSpace(dto.Preferences))
+                entity.Preferences = dto.Preferences;
+
+            _unitOfWork.Children.Update(entity);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UpdateAvatarOnlyAsync(int id, string avatarUrl)
+        {
+            var entity = await _unitOfWork.Children.GetByIdAsync(id);
+            if (entity == null) return false;
+
+            entity.AvatarUrl = avatarUrl;
+
             _unitOfWork.Children.Update(entity);
             await _unitOfWork.SaveChangesAsync();
             return true;

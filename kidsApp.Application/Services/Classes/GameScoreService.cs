@@ -21,7 +21,6 @@ namespace kidsApp.Application.Services
             _mapper = mapper;
         }
 
-        // ====================== CRUD ======================
         public async Task<IEnumerable<GameScoreDTO>> GetAllAsync()
         {
             var scores = await _unitOfWork.GameScores.GetWithDetailsAsync();
@@ -43,9 +42,8 @@ namespace kidsApp.Application.Services
             await _unitOfWork.GameScores.AddAsync(entity);
             await _unitOfWork.SaveChangesAsync();
 
-            // نرجع نجيبها مع التفاصيل
-            var scores = await _unitOfWork.GameScores.GetWithDetailsAsync();
-            var created = scores.FirstOrDefault(gs => gs.Id == entity.Id);
+            var created = (await _unitOfWork.GameScores.GetWithDetailsAsync())
+                .FirstOrDefault(gs => gs.Id == entity.Id);
 
             return _mapper.Map<GameScoreDTO>(created!);
         }
@@ -58,7 +56,6 @@ namespace kidsApp.Application.Services
             _mapper.Map(dto, entity);
             _unitOfWork.GameScores.Update(entity);
             await _unitOfWork.SaveChangesAsync();
-
             return true;
         }
 
@@ -69,11 +66,9 @@ namespace kidsApp.Application.Services
 
             _unitOfWork.GameScores.Delete(entity);
             await _unitOfWork.SaveChangesAsync();
-
             return true;
         }
 
-        // ====================== Advanced Methods ======================
         public async Task<IEnumerable<GameScoreDTO>> GetScoresByGameIdAsync(int gameId)
         {
             var scores = await _unitOfWork.GameScores.GetWithDetailsAsync();
@@ -102,13 +97,17 @@ namespace kidsApp.Application.Services
             if (topCount > 50) topCount = 50;
 
             var scores = await _unitOfWork.GameScores.GetWithDetailsAsync();
-
             var topScores = scores
                 .OrderByDescending(gs => gs.ScoreValue)
                 .Take(topCount)
                 .ToList();
 
             return _mapper.Map<IEnumerable<GameScoreDTO>>(topScores);
+        }
+
+        public async Task<IEnumerable<GameScoreDTO>> GetMyScoresAsync(int childId)
+        {
+            return await GetScoresByChildIdAsync(childId);
         }
     }
 }

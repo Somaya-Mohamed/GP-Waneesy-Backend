@@ -9,11 +9,11 @@ namespace kidsApp.Domain.Entities
     public class Child
     {
         public int Id { get; set; }
-        //public int ChildId { get; set; }
         public string Name { get; set; }
         public int Age { get; set; }
         public string? Gender { get; set; }
-        public string? AvatarUrl { get; set; }
+        public string? AvatarUrl { get; set; }           
+        public string? CartoonAvatarUrl { get; set; }    
         public string? Preferences { get; set; }
         public string PinCode { get; set; } = string.Empty;
 

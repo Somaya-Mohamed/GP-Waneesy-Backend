@@ -1,4 +1,5 @@
-﻿using kidsApp.Application.Services.Interfaces;
+﻿using kidsApp.Application.Services.Classes;
+using kidsApp.Application.Services.Interfaces;
 namespace kidsApp.Application.ServiceManager
 {
 
@@ -15,6 +16,6 @@ namespace kidsApp.Application.ServiceManager
         ITaskLogService TaskLogService { get; }
         IVideoService VideoService { get; }
         IVideoActivityService VideoActivityService { get; }
-        IAdminService AdminService { get; } // ← added
+        IAdminService AdminService { get; }
     }
 }
