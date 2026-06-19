@@ -101,10 +101,20 @@ namespace kidsApp.Infrastructure.Data
             // ===== Your Configurations =====
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ChildConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ParentConfiguration).Assembly);
-        
 
 
-           
+            modelBuilder.Entity<TaskLog>()
+                .HasOne(tl => tl.Task)
+                .WithMany(t => t.TaskLogs)
+                .HasForeignKey(tl => tl.TaskId)
+                //.OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
+
+
+
+            
+
+
         }
 
 

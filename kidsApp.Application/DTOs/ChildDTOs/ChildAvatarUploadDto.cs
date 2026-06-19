@@ -4,6 +4,6 @@ namespace kidsApp.Application.DTOs.ChildDTOs
 {
     public class ChildAvatarUploadDto
     {
-        public IFormFile AvatarImage { get; set; }   // الصورة اللي جاية من الموبايل
+        public IFormFile AvatarImage { get; set; }   
     }
 }

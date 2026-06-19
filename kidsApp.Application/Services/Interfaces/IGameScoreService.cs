@@ -14,7 +14,9 @@ namespace kidsApp.Application.Services.Interfaces
 
         // Advanced
         Task<IEnumerable<GameScoreDTO>> GetScoresByGameIdAsync(int gameId);
-        Task<IEnumerable<GameScoreDTO>> GetScoresByChildIdAsync(int childId);   // مهم جدًا
+        Task<IEnumerable<GameScoreDTO>> GetScoresByChildIdAsync(int childId);   
         Task<IEnumerable<GameScoreDTO>> GetTopScoresAsync(int topCount);
+        Task<IEnumerable<GameScoreDTO>> GetMyScoresAsync(int childId);
+
     }
 }

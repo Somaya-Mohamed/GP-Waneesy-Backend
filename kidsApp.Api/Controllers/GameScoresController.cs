@@ -49,8 +49,7 @@ namespace kidsApp.API.Controllers
             });
         }
 
-        // POST: api/v1/game-scores
-        // Child يقدر يضيف score لنفسه بس
+        // POST: api/v1/game-scores  (Child only adds his own score)
         [HttpPost]
         [Authorize(Roles = "Child")]
         public async Task<IActionResult> Create([FromBody] GameScoreCreateDTO dto)
@@ -58,10 +57,8 @@ namespace kidsApp.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new { Success = false, Message = "Invalid data", Errors = ModelState });
 
-            var childId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-            // Child مينفعش يضيف score باسم child تاني
-            if (dto.ChildId != childId)
+            var childIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(childIdClaim, out int currentChildId) || dto.ChildId != currentChildId)
                 return Forbid();
 
             var result = await _serviceManager.GameScoreService.CreateAsync(dto);
@@ -112,26 +109,42 @@ namespace kidsApp.API.Controllers
 
         // GET: api/v1/game-scores/game/{gameId}
         [HttpGet("game/{gameId:int}")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetByGameId(int gameId)
         {
             var scores = await _serviceManager.GameScoreService.GetScoresByGameIdAsync(gameId);
-            return Ok(new { Success = true, Message = "Scores by game retrieved successfully", Data = scores });
+            return Ok(new
+            {
+                Success = true,
+                Message = "Scores by game retrieved successfully",
+                Data = scores
+            });
         }
 
+        // ====================== GET BY CHILD ID (الأهم) ======================
         // GET: api/v1/game-scores/child/{childId}
-        // Parent يشوف scores أولاده بس
         [HttpGet("child/{childId:int}")]
-        [Authorize(Roles = "Parent")]
+        [Authorize(Roles = "Parent,Admin,Child")]
         public async Task<IActionResult> GetByChildId(int childId)
         {
-            var parentId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var isOwner = await _serviceManager.ChildService
-                .IsChildBelongsToParentAsync(childId, parentId);
+            if (!int.TryParse(currentUserIdClaim, out int currentUserId))
+                return Unauthorized(new { Success = false, Message = "Invalid user" });
 
-            if (!isOwner)
+            if (role == "Child" && currentUserId != childId)
                 return Forbid();
+
+            if (role == "Parent")
+            {
+                var isOwner = await _serviceManager.ChildService
+                    .IsChildBelongsToParentAsync(childId, currentUserId);
+
+                if (!isOwner)
+                    return Forbid();
+            }
+
 
             var scores = await _serviceManager.GameScoreService.GetScoresByChildIdAsync(childId);
 
@@ -143,15 +156,34 @@ namespace kidsApp.API.Controllers
             });
         }
 
+        [HttpGet("my-scores")]
+        [Authorize(Roles = "Child")]
+        public async Task<IActionResult> GetMyScores()
+        {
+            var childIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(childIdClaim, out int childId))
+                return Unauthorized(new { Success = false, Message = "Invalid child" });
+
+            var scores = await _serviceManager.GameScoreService.GetMyScoresAsync(childId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "My game scores retrieved successfully",
+                Data = scores
+            });
+        }
+
         // GET: api/v1/game-scores/top/{count}
         [HttpGet("top/{count:int}")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetTopScores(int count)
         {
             if (count <= 0) count = 10;
             if (count > 50) count = 50;
 
             var scores = await _serviceManager.GameScoreService.GetTopScoresAsync(count);
+
             return Ok(new
             {
                 Success = true,
