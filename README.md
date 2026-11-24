@@ -16,7 +16,7 @@ This repository contains the **Backend RESTful API** developed using ASP.NET Cor
 |---|---|
 | Backend API / Swagger UI | [Waneesy API](https://waneesy.runasp.net/index.html) |
 | Mother Dashboard | [Open Dashboard](https://motherdashboard.vercel.app/login) |
-| Project Presentation | [View Project Presentation](https://drive.google.com/file/d/1KMwPnIsvK6DHIlMSj-rdC3ok7qwIItBh/view) |
+| Mobile Application (APK) | [Download Waneesy APK](https://drive.google.com/file/d/1KMwPnIsvK6DHIlMSj-rdC3ok7qwIItBh/view) |
 
 > The deployed links are provided for demonstration purposes. Availability may vary.
 
